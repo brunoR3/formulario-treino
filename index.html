@@ -113,14 +113,8 @@ textarea{resize:vertical;min-height:72px}
   <div class="section open">
     <div class="section-header"><div class="section-num">01</div><div class="section-title">Perfil Pessoal</div><div class="chevron"></div></div>
     <div class="section-body">
-      <div class="row">
-        <div class="field"><label>Nome completo <span class="req">*</span></label><input type="text" id="nome" placeholder="Ex: Ana Souza"></div>
-        <div class="field"><label>E-mail <span class="req">*</span></label><input type="email" id="email" placeholder="seu@email.com"></div>
-      </div>
-      <div class="row">
-        <div class="field"><label>Cidade / Estado <span class="req">*</span></label><input type="text" id="cidade" placeholder="Ex: São Paulo/SP"></div>
-        <div class="field"><label>Idade <span class="req">*</span></label><input type="number" id="idade" placeholder="Ex: 32" min="14" max="80"></div>
-      </div>
+      <div class="field"><label>Nome completo <span class="req">*</span></label><input type="text" id="nome" placeholder="Ex: Ana Souza"></div>
+      <div class="field"><label>Idade <span class="req">*</span></label><input type="number" id="idade" placeholder="Ex: 32" min="14" max="80"></div>
       <div class="row">
         <div class="field"><label>Peso (kg)</label><input type="number" id="peso" placeholder="Ex: 68"></div>
         <div class="field"><label>Altura (cm)</label><input type="number" id="altura" placeholder="Ex: 168"></div>
@@ -310,7 +304,6 @@ document.querySelectorAll('.section-header').forEach(h=>{
 function updateProgress(){
   const checks=[
     ()=>document.getElementById('nome').value.trim(),
-    ()=>document.getElementById('email').value.trim(),
     ()=>document.getElementById('idade').value.trim(),
     ()=>document.querySelector('input[name="nivel"]:checked'),
     ()=>document.querySelector('input[name="objetivo"]:checked'),
@@ -335,7 +328,7 @@ const chks=n=>[...document.querySelectorAll(`input[name="${n}"]:checked`)].map(e
 
 function coletarPerfil(){
   return{
-    nome:val('nome'),email:val('email'),cidade:val('cidade'),idade:val('idade'),
+    nome:val('nome'),idade:val('idade'),
     sexo:val('sexo')||'—',peso:val('peso')||'—',altura:val('altura')||'—',
     relogio:rad('relogio'),nivel:rad('nivel'),volume:val('volume')||'—',
     prova:rad('prova'),pace_atual:val('pace_atual')||'—',lesao:val('lesao')||'Nenhuma',
@@ -350,7 +343,6 @@ function coletarPerfil(){
 
 function validar(p){
   if(!p.nome) return'Informe seu nome (Seção 01).';
-  if(!p.email||!p.email.includes('@')) return'Informe um e-mail válido (Seção 01).';
   if(!p.idade) return'Informe sua idade (Seção 01).';
   if(p.nivel==='—') return'Selecione seu nível (Seção 02).';
   if(p.objetivo==='—') return'Selecione seu objetivo (Seção 03).';
@@ -371,8 +363,6 @@ ${'='.repeat(52)}
 
 DADOS PESSOAIS
 • Nome: ${p.nome}
-• E-mail: ${p.email}
-• Cidade: ${p.cidade}
 • Idade: ${p.idade} anos
 • Sexo: ${p.sexo}
 • Peso: ${p.peso}kg | Altura: ${p.altura}cm
