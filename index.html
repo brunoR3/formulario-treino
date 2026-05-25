@@ -3,433 +3,172 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Formulário — Plano de Treino Personalizado</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<title>Coach de Corrida — Plano Personalizado</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080810;--surface:#0f0f1a;--surface2:#151525;
+  --border:#1e1e32;--border2:#2a2a42;
+  --accent:#e8ff47;--accent2:#47c8ff;--accent3:#ff6b6b;
+  --text:#eeeef8;--muted:#5a5a78;--muted2:#8888aa;
+  --radius:14px;--radius-sm:8px;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;line-height:1.6;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(232,255,71,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(232,255,71,.025) 1px,transparent 1px);background-size:56px 56px;pointer-events:none;z-index:0}
+body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(232,255,71,.06),transparent);pointer-events:none;z-index:0}
 
-  :root {
-    --bg:       #0a0a0f;
-    --surface:  #111118;
-    --border:   #222230;
-    --accent:   #e8ff47;
-    --accent2:  #47c8ff;
-    --text:     #f0f0f8;
-    --muted:    #6b6b88;
-    --danger:   #ff4747;
-    --radius:   12px;
-  }
+/* CONFIG PANEL */
+#config-panel{position:fixed;bottom:20px;right:20px;z-index:200;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);padding:16px 18px;width:320px;box-shadow:0 8px 40px rgba(0,0,0,.6);animation:slideUp .4s ease both}
+#config-panel h4{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--accent);margin-bottom:10px;letter-spacing:.05em}
+#config-panel label{font-size:11px;color:var(--muted2);display:block;margin-bottom:4px;font-family:'JetBrains Mono',monospace;letter-spacing:.05em}
+#config-panel input{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:11px;padding:8px 10px;outline:none;margin-bottom:10px}
+#config-panel input:focus{border-color:var(--accent)}
+#config-panel input::placeholder{color:var(--muted)}
+.btn-config-save{width:100%;padding:9px;background:var(--accent);color:#080810;border:none;border-radius:var(--radius-sm);font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:.06em;cursor:pointer;transition:opacity .2s}
+.btn-config-save:hover{opacity:.85}
+.config-toggle{position:fixed;bottom:20px;right:20px;z-index:199;background:var(--surface2);border:1px solid var(--border2);border-radius:50%;width:48px;height:48px;display:none;align-items:center;justify-content:center;cursor:pointer;font-size:20px;box-shadow:0 4px 20px rgba(0,0,0,.5);transition:border-color .2s}
+.config-toggle:hover{border-color:var(--accent)}
+.config-status{display:flex;align-items:center;gap:6px;margin-bottom:10px;font-size:11px;color:var(--muted2)}
+.status-dot{width:7px;height:7px;border-radius:50%;background:var(--accent3);flex-shrink:0}
+.status-dot.ok{background:#47ff8a}
 
-  html { scroll-behavior: smooth; }
+/* HERO */
+.hero{position:relative;padding:70px 24px 50px;text-align:center;z-index:1}
+.hero-tag{display:inline-flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);border:1px solid rgba(232,255,71,.25);padding:6px 16px;border-radius:99px;margin-bottom:22px;animation:fadeDown .6s ease both}
+.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(48px,9vw,88px);letter-spacing:.03em;line-height:.92;animation:fadeDown .7s .1s ease both}
+.hero h1 em{color:var(--accent);font-style:normal}
+.hero p{margin-top:18px;color:var(--muted2);font-size:14px;max-width:440px;margin-inline:auto;animation:fadeDown .7s .2s ease both}
+.hero-line{width:60px;height:2px;background:var(--accent);margin:22px auto 0;animation:fadeDown .7s .3s ease both}
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 15px;
-    line-height: 1.6;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+/* PROGRESS */
+.progress-wrap{position:sticky;top:0;z-index:100;background:rgba(8,8,16,.94);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:11px 20px;display:flex;align-items:center;gap:14px}
+.progress-bar{flex:1;height:3px;background:var(--border2);border-radius:99px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:99px;transition:width .5s cubic-bezier(.4,0,.2,1);width:0%}
+.progress-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);min-width:44px;text-align:right}
 
-  /* ── GRID BG ─────────────────────────────────────── */
-  body::before {
-    content: '';
-    position: fixed; inset: 0;
-    background-image:
-      linear-gradient(rgba(232,255,71,.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(232,255,71,.03) 1px, transparent 1px);
-    background-size: 48px 48px;
-    pointer-events: none;
-    z-index: 0;
-  }
+/* FORM */
+.form-wrap{max-width:700px;margin:0 auto;padding:0 20px 40px;position:relative;z-index:1}
+.section{margin-bottom:8px;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;background:var(--surface);transition:border-color .2s;animation:fadeUp .5s ease both}
+.section:hover{border-color:var(--border2)}
+.section.open{border-color:var(--border2)}
+.section:nth-child(1){animation-delay:.05s}.section:nth-child(2){animation-delay:.1s}.section:nth-child(3){animation-delay:.15s}.section:nth-child(4){animation-delay:.2s}.section:nth-child(5){animation-delay:.25s}.section:nth-child(6){animation-delay:.3s}
+.section-header{display:flex;align-items:center;gap:12px;padding:17px 20px;cursor:pointer;user-select:none;border-bottom:1px solid transparent;transition:border-color .2s}
+.section.open .section-header{border-color:var(--border)}
+.section-num{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);background:rgba(232,255,71,.07);border:1px solid rgba(232,255,71,.18);padding:3px 8px;border-radius:6px;min-width:30px;text-align:center}
+.section-title{font-weight:600;font-size:14px;flex:1}
+.chevron{width:16px;height:16px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform .3s ease;flex-shrink:0}
+.section.open .chevron{transform:rotate(-135deg)}
+.section-body{display:none;padding:22px 20px;flex-direction:column;gap:18px}
+.section.open .section-body{display:flex}
 
-  /* ── HERO ────────────────────────────────────────── */
-  .hero {
-    position: relative;
-    padding: 64px 24px 48px;
-    text-align: center;
-    z-index: 1;
-  }
-  .hero-tag {
-    display: inline-block;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: .18em;
-    text-transform: uppercase;
-    color: var(--accent);
-    border: 1px solid rgba(232,255,71,.3);
-    padding: 5px 14px;
-    border-radius: 99px;
-    margin-bottom: 20px;
-    animation: fadeDown .6s ease both;
-  }
-  .hero h1 {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(42px, 8vw, 80px);
-    letter-spacing: .04em;
-    line-height: .95;
-    animation: fadeDown .7s .1s ease both;
-  }
-  .hero h1 span { color: var(--accent); }
-  .hero p {
-    margin-top: 16px;
-    color: var(--muted);
-    font-size: 14px;
-    max-width: 420px;
-    margin-inline: auto;
-    animation: fadeDown .7s .2s ease both;
-  }
+/* FIELDS */
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:12.5px;font-weight:500;color:var(--text);display:flex;align-items:center;gap:5px}
+.req{color:var(--accent);font-size:10px}
+.hint{font-size:11px;color:var(--muted);font-style:italic;margin-top:-3px}
+input[type=text],input[type=number],input[type=email],select,textarea{background:rgba(255,255,255,.03);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;padding:10px 13px;outline:none;transition:border-color .2s,box-shadow .2s;width:100%}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(232,255,71,.08)}
+select{cursor:pointer}
+select option{background:#151525}
+textarea{resize:vertical;min-height:72px}
+.choices{display:flex;flex-wrap:wrap;gap:7px}
+.choice-item input{display:none}
+.choice-item label{display:flex;align-items:center;gap:6px;padding:7px 13px;border:1px solid var(--border2);border-radius:var(--radius-sm);cursor:pointer;font-size:12.5px;color:var(--muted2);transition:all .15s;background:transparent;font-weight:400}
+.choice-item input:checked+label{border-color:var(--accent);color:var(--accent);background:rgba(232,255,71,.07)}
+.choice-item label:hover{border-color:rgba(232,255,71,.35);color:var(--text)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:480px){.row{grid-template-columns:1fr}}
 
-  /* ── FORM WRAPPER ────────────────────────────────── */
-  .form-wrap {
-    max-width: 680px;
-    margin: 0 auto;
-    padding: 0 20px 80px;
-    position: relative;
-    z-index: 1;
-  }
+/* SUBMIT */
+.submit-wrap{max-width:700px;margin:0 auto;padding:0 20px 100px;position:relative;z-index:1}
+.btn-submit{width:100%;padding:18px;background:var(--accent);color:#080810;border:none;border-radius:var(--radius);font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:.08em;cursor:pointer;transition:transform .15s,box-shadow .15s;box-shadow:0 0 40px rgba(232,255,71,.2);display:flex;align-items:center;justify-content:center;gap:10px}
+.btn-submit:hover{transform:translateY(-2px);box-shadow:0 0 60px rgba(232,255,71,.35)}
+.btn-submit:disabled{opacity:.5;cursor:not-allowed;transform:none}
 
-  /* ── SECTION ─────────────────────────────────────── */
-  .section {
-    margin-bottom: 10px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
-    background: var(--surface);
-    animation: fadeUp .5s ease both;
-  }
-  .section:nth-child(1) { animation-delay: .1s }
-  .section:nth-child(2) { animation-delay: .2s }
-  .section:nth-child(3) { animation-delay: .3s }
-  .section:nth-child(4) { animation-delay: .4s }
-  .section:nth-child(5) { animation-delay: .5s }
-  .section:nth-child(6) { animation-delay: .6s }
+/* STATUS */
+#status-wrap{max-width:700px;margin:0 auto;padding:0 20px 80px;position:relative;z-index:1;display:none}
+.status-card{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:28px;text-align:center}
+.status-card h3{font-family:'Bebas Neue',sans-serif;font-size:22px;margin-bottom:8px;letter-spacing:.05em}
+.status-card p{color:var(--muted2);font-size:13px;line-height:1.6}
+.spinner{width:40px;height:40px;border:3px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 16px}
+.steps{display:flex;flex-direction:column;gap:10px;margin-top:20px;text-align:left}
+.step{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:var(--radius-sm);background:rgba(255,255,255,.02);border:1px solid var(--border);font-size:13px;color:var(--muted2);transition:all .3s}
+.step.active{border-color:var(--accent);color:var(--text);background:rgba(232,255,71,.05)}
+.step.done-step{border-color:rgba(71,255,138,.4);color:#47ff8a;background:rgba(71,255,138,.05)}
+.step.error-step{border-color:rgba(255,71,71,.4);color:var(--accent3);background:rgba(255,71,71,.05)}
+.step-icon{font-size:16px;flex-shrink:0;width:24px;text-align:center}
 
-  .section-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 18px 22px;
-    cursor: pointer;
-    user-select: none;
-    border-bottom: 1px solid transparent;
-    transition: border-color .2s;
-  }
-  .section.open .section-header { border-color: var(--border); }
-  .section-num {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    color: var(--accent);
-    background: rgba(232,255,71,.08);
-    border: 1px solid rgba(232,255,71,.2);
-    padding: 3px 8px;
-    border-radius: 6px;
-    min-width: 32px;
-    text-align: center;
-  }
-  .section-title {
-    font-weight: 600;
-    font-size: 14px;
-    flex: 1;
-  }
-  .section-icon {
-    font-size: 18px;
-    opacity: .7;
-  }
-  .chevron {
-    width: 18px; height: 18px;
-    border-right: 2px solid var(--muted);
-    border-bottom: 2px solid var(--muted);
-    transform: rotate(45deg);
-    transition: transform .3s ease;
-    margin-left: 4px;
-    flex-shrink: 0;
-  }
-  .section.open .chevron { transform: rotate(-135deg); }
+/* RESULT */
+#result{display:none;max-width:700px;margin:0 auto;padding:0 20px 80px;position:relative;z-index:1}
+.result-card{background:var(--surface);border:1px solid rgba(71,255,138,.3);border-radius:var(--radius);padding:28px;animation:fadeUp .5s ease both}
+.result-card h3{font-family:'Bebas Neue',sans-serif;font-size:26px;color:#47ff8a;margin-bottom:6px}
+.result-card p{color:var(--muted2);font-size:13px;margin-bottom:20px}
+.email-sent{display:flex;align-items:center;gap:10px;padding:12px 16px;background:rgba(71,255,138,.06);border:1px solid rgba(71,255,138,.2);border-radius:var(--radius-sm);font-size:13px;color:#47ff8a;margin-bottom:10px}
 
-  .section-body {
-    display: none;
-    padding: 24px 22px;
-    flex-direction: column;
-    gap: 20px;
-  }
-  .section.open .section-body { display: flex; }
-
-  /* ── FIELD ───────────────────────────────────────── */
-  .field { display: flex; flex-direction: column; gap: 7px; }
-  .field label {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .field label .req { color: var(--accent); font-size: 11px; }
-  .field .hint {
-    font-size: 11.5px;
-    color: var(--muted);
-    font-style: italic;
-    margin-top: -4px;
-  }
-
-  input[type=text], input[type=number], input[type=email],
-  select, textarea {
-    background: rgba(255,255,255,.03);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    padding: 11px 14px;
-    outline: none;
-    transition: border-color .2s, box-shadow .2s;
-    width: 100%;
-  }
-  input:focus, select:focus, textarea:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(232,255,71,.1);
-  }
-  select { cursor: pointer; }
-  select option { background: #1a1a28; }
-  textarea { resize: vertical; min-height: 80px; }
-
-  /* ── RADIO / CHECKBOX GROUP ──────────────────────── */
-  .choices {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  .choice-item {
-    position: relative;
-  }
-  .choice-item input { display: none; }
-  .choice-item label {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    padding: 8px 14px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 400;
-    color: var(--muted);
-    transition: all .18s;
-    background: transparent;
-  }
-  .choice-item input:checked + label {
-    border-color: var(--accent);
-    color: var(--accent);
-    background: rgba(232,255,71,.08);
-  }
-  .choice-item label:hover {
-    border-color: rgba(232,255,71,.4);
-    color: var(--text);
-  }
-
-  /* ── ROW ─────────────────────────────────────────── */
-  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  @media (max-width: 480px) { .row { grid-template-columns: 1fr; } }
-
-  /* ── DIVIDER ─────────────────────────────────────── */
-  .divider {
-    height: 1px;
-    background: var(--border);
-    margin: 4px 0;
-  }
-
-  /* ── PROGRESS BAR ────────────────────────────────── */
-  .progress-wrap {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background: rgba(10,10,15,.92);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border);
-    padding: 12px 20px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
-  .progress-bar {
-    flex: 1;
-    height: 4px;
-    background: var(--border);
-    border-radius: 99px;
-    overflow: hidden;
-  }
-  .progress-fill {
-    height: 100%;
-    background: var(--accent);
-    border-radius: 99px;
-    transition: width .4s ease;
-    width: 0%;
-  }
-  .progress-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    color: var(--muted);
-    min-width: 60px;
-    text-align: right;
-  }
-
-  /* ── SUBMIT ──────────────────────────────────────── */
-  .submit-wrap {
-    padding: 0 20px 80px;
-    max-width: 680px;
-    margin-inline: auto;
-    z-index: 1;
-    position: relative;
-  }
-  .btn-submit {
-    width: 100%;
-    padding: 16px;
-    background: var(--accent);
-    color: #0a0a0f;
-    border: none;
-    border-radius: var(--radius);
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 22px;
-    letter-spacing: .08em;
-    cursor: pointer;
-    transition: transform .15s, box-shadow .15s;
-    box-shadow: 0 0 32px rgba(232,255,71,.25);
-  }
-  .btn-submit:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 0 48px rgba(232,255,71,.4);
-  }
-  .btn-submit:active { transform: translateY(0); }
-
-  /* ── RESULT PANEL ────────────────────────────────── */
-  #result {
-    display: none;
-    margin: 0 20px 80px;
-    max-width: 640px;
-    margin-inline: auto;
-    background: var(--surface);
-    border: 1px solid rgba(232,255,71,.3);
-    border-radius: var(--radius);
-    padding: 28px 28px;
-    position: relative;
-    z-index: 1;
-    animation: fadeUp .5s ease both;
-  }
-  #result h3 {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 26px;
-    color: var(--accent);
-    margin-bottom: 16px;
-  }
-  #result-content {
-    font-size: 13.5px;
-    line-height: 1.75;
-    color: var(--text);
-    white-space: pre-wrap;
-    font-family: 'JetBrains Mono', monospace;
-    background: rgba(0,0,0,.3);
-    border-radius: 8px;
-    padding: 18px;
-    max-height: 520px;
-    overflow-y: auto;
-  }
-  .copy-btn {
-    margin-top: 14px;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 9px 18px;
-    background: transparent;
-    border: 1px solid var(--accent);
-    color: var(--accent);
-    border-radius: 8px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background .2s;
-  }
-  .copy-btn:hover { background: rgba(232,255,71,.08); }
-
-  /* ── ANIMATIONS ──────────────────────────────────── */
-  @keyframes fadeDown {
-    from { opacity: 0; transform: translateY(-18px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(18px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  /* ── SCROLLBAR ───────────────────────────────────── */
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+@keyframes fadeDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px}
 </style>
 </head>
 <body>
 
+<!-- CONFIG PANEL -->
+<div id="config-panel">
+  <h4>⚙ CONFIGURAÇÃO</h4>
+  <div class="config-status"><div class="status-dot" id="statusDot"></div><span id="statusText">Insira suas chaves para ativar</span></div>
+  <label>ANTHROPIC API KEY</label>
+  <input type="password" id="cfg-claude" placeholder="sk-ant-api03-..." autocomplete="off">
+  <label>EMAILJS PUBLIC KEY</label>
+  <input type="text" id="cfg-emailjs-pub" placeholder="FObfx_..." value="FObfx_qMHM1wQxZ1C">
+  <label>EMAILJS SERVICE ID</label>
+  <input type="text" id="cfg-service" placeholder="service_..." value="service_wxistmu">
+  <label>EMAILJS TEMPLATE ID</label>
+  <input type="text" id="cfg-template" placeholder="template_..." value="template_cfilv9a">
+  <label>SEU E-MAIL (cópia ao coach)</label>
+  <input type="text" id="cfg-admin" placeholder="seu@email.com" value="brunofroca01@gmail.com">
+  <button class="btn-config-save" onclick="saveConfig()">SALVAR E ATIVAR ✓</button>
+</div>
+<div class="config-toggle" id="configToggle" onclick="toggleConfig()">⚙️</div>
+
 <!-- HERO -->
 <div class="hero">
-  <div class="hero-tag">⚡ Plano de Treino Personalizado</div>
-  <h1>VAMOS MONTAR<br>SEU <span>PLANO</span></h1>
-  <p>Responda as perguntas abaixo. Quanto mais detalhes, mais preciso será seu plano de treinos.</p>
+  <div class="hero-tag">🏃 Coach de Corrida — ABV</div>
+  <h1>SEU PLANO<br><em>PERSONALIZADO</em></h1>
+  <p>Responda as perguntas abaixo. A IA vai gerar seu plano de treinos e enviar por e-mail automaticamente.</p>
+  <div class="hero-line"></div>
 </div>
 
 <!-- PROGRESS -->
 <div class="progress-wrap">
   <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-  <div class="progress-label" id="progressLabel">0 / 6</div>
+  <div class="progress-label" id="progressLabel">0%</div>
 </div>
 
 <!-- FORM -->
 <div class="form-wrap">
 
-  <!-- 1. PERFIL -->
-  <div class="section open" data-section="1">
-    <div class="section-header">
-      <div class="section-num">01</div>
-      <div class="section-title">Perfil Pessoal</div>
-      <div class="section-icon">🧍</div>
-      <div class="chevron"></div>
-    </div>
+  <div class="section open">
+    <div class="section-header"><div class="section-num">01</div><div class="section-title">Perfil Pessoal</div><div class="chevron"></div></div>
     <div class="section-body">
       <div class="row">
-        <div class="field">
-          <label>Nome completo <span class="req">*</span></label>
-          <input type="text" id="nome" placeholder="Ex: Ana Souza">
-        </div>
-        <div class="field">
-          <label>Cidade / Estado <span class="req">*</span></label>
-          <input type="text" id="cidade" placeholder="Ex: São Paulo/SP">
-        </div>
+        <div class="field"><label>Nome completo <span class="req">*</span></label><input type="text" id="nome" placeholder="Ex: Ana Souza"></div>
+        <div class="field"><label>E-mail <span class="req">*</span></label><input type="email" id="email" placeholder="seu@email.com"></div>
       </div>
       <div class="row">
-        <div class="field">
-          <label>Idade <span class="req">*</span></label>
-          <input type="number" id="idade" placeholder="Ex: 32" min="14" max="80">
-        </div>
-        <div class="field">
-          <label>Sexo</label>
-          <select id="sexo">
-            <option value="">Selecione</option>
-            <option>Feminino</option>
-            <option>Masculino</option>
-            <option>Prefiro não informar</option>
-          </select>
-        </div>
+        <div class="field"><label>Cidade / Estado <span class="req">*</span></label><input type="text" id="cidade" placeholder="Ex: São Paulo/SP"></div>
+        <div class="field"><label>Idade <span class="req">*</span></label><input type="number" id="idade" placeholder="Ex: 32" min="14" max="80"></div>
       </div>
-      <div class="field">
-        <label>Peso e Altura <span class="req">*</span></label>
-        <div class="row">
-          <input type="number" id="peso" placeholder="Peso (kg)  Ex: 68">
-          <input type="number" id="altura" placeholder="Altura (cm)  Ex: 168">
-        </div>
+      <div class="row">
+        <div class="field"><label>Peso (kg)</label><input type="number" id="peso" placeholder="Ex: 68"></div>
+        <div class="field"><label>Altura (cm)</label><input type="number" id="altura" placeholder="Ex: 168"></div>
       </div>
-      <div class="field">
-        <label>Possui algum relógio esportivo?</label>
+      <div class="field"><label>Sexo</label><select id="sexo"><option value="">Selecione</option><option>Feminino</option><option>Masculino</option><option>Prefiro não informar</option></select></div>
+      <div class="field"><label>Relógio esportivo</label>
         <div class="choices">
           <div class="choice-item"><input type="radio" name="relogio" id="r1" value="Garmin"><label for="r1">Garmin</label></div>
           <div class="choice-item"><input type="radio" name="relogio" id="r2" value="Apple Watch"><label for="r2">Apple Watch</label></div>
@@ -442,113 +181,66 @@
     </div>
   </div>
 
-  <!-- 2. NÍVEL E HISTÓRICO -->
-  <div class="section" data-section="2">
-    <div class="section-header">
-      <div class="section-num">02</div>
-      <div class="section-title">Nível e Histórico de Corrida</div>
-      <div class="section-icon">📊</div>
-      <div class="chevron"></div>
-    </div>
+  <div class="section">
+    <div class="section-header"><div class="section-num">02</div><div class="section-title">Nível e Histórico</div><div class="chevron"></div></div>
     <div class="section-body">
-      <div class="field">
-        <label>Como você se descreve como corredor(a)? <span class="req">*</span></label>
+      <div class="field"><label>Nível de corrida <span class="req">*</span></label>
         <div class="choices">
-          <div class="choice-item"><input type="radio" name="nivel" id="n1" value="Iniciante absoluto"><label for="n1">🌱 Iniciante absoluto<br><small style="color:var(--muted);font-size:10px">Nunca corri ou comecei há pouco</small></label></div>
-          <div class="choice-item"><input type="radio" name="nivel" id="n2" value="Iniciante com alguma vivência"><label for="n2">🏃 Iniciante com vivência<br><small style="color:var(--muted);font-size:10px">Já corro esporadicamente</small></label></div>
-          <div class="choice-item"><input type="radio" name="nivel" id="n3" value="Intermediário"><label for="n3">⚡ Intermediário<br><small style="color:var(--muted);font-size:10px">Treino regularmente há +6 meses</small></label></div>
-          <div class="choice-item"><input type="radio" name="nivel" id="n4" value="Avançado"><label for="n4">🔥 Avançado<br><small style="color:var(--muted);font-size:10px">Já participei de provas</small></label></div>
+          <div class="choice-item"><input type="radio" name="nivel" id="n1" value="Iniciante absoluto"><label for="n1">🌱 Iniciante absoluto</label></div>
+          <div class="choice-item"><input type="radio" name="nivel" id="n2" value="Iniciante com vivência"><label for="n2">🏃 Iniciante com vivência</label></div>
+          <div class="choice-item"><input type="radio" name="nivel" id="n3" value="Intermediário (+6 meses de treino regular)"><label for="n3">⚡ Intermediário</label></div>
+          <div class="choice-item"><input type="radio" name="nivel" id="n4" value="Avançado (já participou de provas)"><label for="n4">🔥 Avançado</label></div>
         </div>
       </div>
-      <div class="field">
-        <label>Volume atual de corrida por semana</label>
-        <select id="volume">
-          <option value="">Selecione</option>
-          <option>Não corro atualmente</option>
-          <option>Menos de 10 km/semana</option>
-          <option>10–20 km/semana</option>
-          <option>20–35 km/semana</option>
-          <option>35–50 km/semana</option>
-          <option>Mais de 50 km/semana</option>
-        </select>
+      <div class="field"><label>Volume atual por semana</label>
+        <select id="volume"><option value="">Selecione</option><option>Não corro atualmente</option><option>Menos de 10 km/semana</option><option>10–20 km/semana</option><option>20–35 km/semana</option><option>35–50 km/semana</option><option>Mais de 50 km/semana</option></select>
       </div>
-      <div class="field">
-        <label>Já participou de alguma corrida/prova?</label>
+      <div class="field"><label>Experiência em provas</label>
         <div class="choices">
-          <div class="choice-item"><input type="radio" name="prova" id="p0" value="Nunca participei"><label for="p0">Nunca participei</label></div>
-          <div class="choice-item"><input type="radio" name="prova" id="p1" value="Sim, provas de 5k"><label for="p1">Sim — 5k</label></div>
-          <div class="choice-item"><input type="radio" name="prova" id="p2" value="Sim, provas de 10k"><label for="p2">Sim — 10k</label></div>
-          <div class="choice-item"><input type="radio" name="prova" id="p3" value="Sim, meia maratona (21k)"><label for="p3">Sim — 21k</label></div>
-          <div class="choice-item"><input type="radio" name="prova" id="p4" value="Sim, maratona (42k)"><label for="p4">Sim — 42k</label></div>
-          <div class="choice-item"><input type="radio" name="prova" id="p5" value="Sim, trail run"><label for="p5">Sim — Trail</label></div>
+          <div class="choice-item"><input type="radio" name="prova" id="p0" value="Nunca participei"><label for="p0">Nunca</label></div>
+          <div class="choice-item"><input type="radio" name="prova" id="p1" value="5k"><label for="p1">5k</label></div>
+          <div class="choice-item"><input type="radio" name="prova" id="p2" value="10k"><label for="p2">10k</label></div>
+          <div class="choice-item"><input type="radio" name="prova" id="p3" value="21k"><label for="p3">21k</label></div>
+          <div class="choice-item"><input type="radio" name="prova" id="p4" value="42k"><label for="p4">42k</label></div>
+          <div class="choice-item"><input type="radio" name="prova" id="p5" value="Trail"><label for="p5">Trail</label></div>
         </div>
       </div>
-      <div class="field">
-        <label>Qual seu pace atual (tempo médio por km)?</label>
-        <input type="text" id="pace_atual" placeholder="Ex: 6:30 min/km ou 'não sei ainda'">
-        <span class="hint">Se não souber, escreva 'não sei'. Usaremos a FC como referência.</span>
-      </div>
-      <div class="field">
-        <label>Tem alguma lesão atual ou recente que devemos considerar?</label>
-        <textarea id="lesao" placeholder="Ex: Joelho direito — tendinite leve (há 2 meses). Ou: Nenhuma."></textarea>
-      </div>
+      <div class="field"><label>Pace atual</label><input type="text" id="pace_atual" placeholder="Ex: 6:30 min/km  ou  'não sei ainda'"></div>
+      <div class="field"><label>Lesões atuais ou recentes</label><textarea id="lesao" placeholder="Ex: Tendinite no joelho há 2 meses. Ou: Nenhuma."></textarea></div>
     </div>
   </div>
 
-  <!-- 3. OBJETIVO -->
-  <div class="section" data-section="3">
-    <div class="section-header">
-      <div class="section-num">03</div>
-      <div class="section-title">Objetivo e Meta</div>
-      <div class="section-icon">🎯</div>
-      <div class="chevron"></div>
-    </div>
+  <div class="section">
+    <div class="section-header"><div class="section-num">03</div><div class="section-title">Objetivo e Meta</div><div class="chevron"></div></div>
     <div class="section-body">
-      <div class="field">
-        <label>Qual é o seu objetivo principal? <span class="req">*</span></label>
+      <div class="field"><label>Objetivo principal <span class="req">*</span></label>
         <div class="choices">
-          <div class="choice-item"><input type="radio" name="objetivo" id="o1" value="Completar minha primeira corrida de rua"><label for="o1">🏁 Completar minha primeira corrida</label></div>
-          <div class="choice-item"><input type="radio" name="objetivo" id="o2" value="Melhorar meu pace / bater recorde pessoal"><label for="o2">⚡ Melhorar pace / bater PR</label></div>
-          <div class="choice-item"><input type="radio" name="objetivo" id="o3" value="Perder peso e melhorar condicionamento"><label for="o3">🔥 Perder peso / condicionamento</label></div>
+          <div class="choice-item"><input type="radio" name="objetivo" id="o1" value="Completar minha primeira corrida de rua"><label for="o1">🏁 Primeira corrida</label></div>
+          <div class="choice-item"><input type="radio" name="objetivo" id="o2" value="Melhorar pace e bater recorde pessoal"><label for="o2">⚡ Melhorar pace / PR</label></div>
+          <div class="choice-item"><input type="radio" name="objetivo" id="o3" value="Perder peso e melhorar condicionamento"><label for="o3">🔥 Condicionamento</label></div>
           <div class="choice-item"><input type="radio" name="objetivo" id="o4" value="Preparar para trail run"><label for="o4">🏔️ Trail run</label></div>
-          <div class="choice-item"><input type="radio" name="objetivo" id="o5" value="Manter saúde e bem-estar geral"><label for="o5">💚 Saúde e bem-estar</label></div>
-          <div class="choice-item"><input type="radio" name="objetivo" id="o6" value="Outro"><label for="o6">✍️ Outro</label></div>
+          <div class="choice-item"><input type="radio" name="objetivo" id="o5" value="Saúde e bem-estar geral"><label for="o5">💚 Saúde geral</label></div>
         </div>
       </div>
-      <div class="field">
-        <label>Qual distância você quer conquistar? <span class="req">*</span></label>
+      <div class="field"><label>Distância-alvo <span class="req">*</span></label>
         <div class="choices">
           <div class="choice-item"><input type="radio" name="distancia" id="d1" value="5k"><label for="d1">5k</label></div>
           <div class="choice-item"><input type="radio" name="distancia" id="d2" value="10k"><label for="d2">10k</label></div>
           <div class="choice-item"><input type="radio" name="distancia" id="d3" value="15k"><label for="d3">15k</label></div>
-          <div class="choice-item"><input type="radio" name="distancia" id="d4" value="21k (Meia Maratona)"><label for="d4">21k — Meia</label></div>
-          <div class="choice-item"><input type="radio" name="distancia" id="d5" value="42k (Maratona)"><label for="d5">42k — Maratona</label></div>
-          <div class="choice-item"><input type="radio" name="distancia" id="d6" value="Trail personalizado"><label for="d6">Trail personalizado</label></div>
+          <div class="choice-item"><input type="radio" name="distancia" id="d4" value="21k — Meia Maratona"><label for="d4">21k</label></div>
+          <div class="choice-item"><input type="radio" name="distancia" id="d5" value="42k — Maratona"><label for="d5">42k</label></div>
+          <div class="choice-item"><input type="radio" name="distancia" id="d6" value="Trail personalizado"><label for="d6">Trail</label></div>
         </div>
       </div>
-      <div class="field">
-        <label>Tem pace alvo para essa distância?</label>
-        <input type="text" id="pace_alvo" placeholder="Ex: 5:45 min/km ou 'só quero terminar'">
-      </div>
-      <div class="field">
-        <label>Tem data de prova ou prazo definido? <span class="req">*</span></label>
-        <input type="text" id="prazo" placeholder="Ex: Dezembro/2025 ou 'não tenho prova marcada'">
-        <span class="hint">Se tiver uma prova específica, informe também o nome e cidade.</span>
-      </div>
+      <div class="field"><label>Pace alvo</label><input type="text" id="pace_alvo" placeholder="Ex: 5:45 min/km  ou  'só quero terminar'"></div>
+      <div class="field"><label>Prazo / data da prova <span class="req">*</span></label><input type="text" id="prazo" placeholder="Ex: Dezembro/2025  ou  'sem prova marcada'"><span class="hint">Se tiver prova específica, informe nome e cidade.</span></div>
     </div>
   </div>
 
-  <!-- 4. DISPONIBILIDADE -->
-  <div class="section" data-section="4">
-    <div class="section-header">
-      <div class="section-num">04</div>
-      <div class="section-title">Disponibilidade e Rotina</div>
-      <div class="section-icon">📅</div>
-      <div class="chevron"></div>
-    </div>
+  <div class="section">
+    <div class="section-header"><div class="section-num">04</div><div class="section-title">Disponibilidade e Rotina</div><div class="chevron"></div></div>
     <div class="section-body">
-      <div class="field">
-        <label>Quantos dias por semana você pode treinar? <span class="req">*</span></label>
+      <div class="field"><label>Dias de treino por semana <span class="req">*</span></label>
         <div class="choices">
           <div class="choice-item"><input type="radio" name="dias_num" id="dn2" value="2 dias"><label for="dn2">2 dias</label></div>
           <div class="choice-item"><input type="radio" name="dias_num" id="dn3" value="3 dias"><label for="dn3">3 dias</label></div>
@@ -557,8 +249,7 @@
           <div class="choice-item"><input type="radio" name="dias_num" id="dn6" value="6+ dias"><label for="dn6">6+ dias</label></div>
         </div>
       </div>
-      <div class="field">
-        <label>Quais dias da semana são melhores para você? <span class="req">*</span></label>
+      <div class="field"><label>Dias preferidos <span class="req">*</span></label>
         <div class="choices">
           <div class="choice-item"><input type="checkbox" name="dias" id="seg" value="Segunda"><label for="seg">Seg</label></div>
           <div class="choice-item"><input type="checkbox" name="dias" id="ter" value="Terça"><label for="ter">Ter</label></div>
@@ -569,55 +260,41 @@
           <div class="choice-item"><input type="checkbox" name="dias" id="dom" value="Domingo"><label for="dom">Dom</label></div>
         </div>
       </div>
-      <div class="field">
-        <label>Qual o melhor horário para treinar?</label>
+      <div class="field"><label>Melhor horário</label>
         <div class="choices">
-          <div class="choice-item"><input type="radio" name="horario" id="h1" value="Manhã (antes do trabalho)"><label for="h1">🌅 Manhã</label></div>
-          <div class="choice-item"><input type="radio" name="horario" id="h2" value="Meio-dia / intervalo"><label for="h2">☀️ Meio-dia</label></div>
+          <div class="choice-item"><input type="radio" name="horario" id="h1" value="Manhã"><label for="h1">🌅 Manhã</label></div>
+          <div class="choice-item"><input type="radio" name="horario" id="h2" value="Meio-dia"><label for="h2">☀️ Meio-dia</label></div>
           <div class="choice-item"><input type="radio" name="horario" id="h3" value="Tarde"><label for="h3">🌤️ Tarde</label></div>
           <div class="choice-item"><input type="radio" name="horario" id="h4" value="Noite"><label for="h4">🌙 Noite</label></div>
-          <div class="choice-item"><input type="radio" name="horario" id="h5" value="Varia conforme o dia"><label for="h5">🔄 Varia</label></div>
+          <div class="choice-item"><input type="radio" name="horario" id="h5" value="Varia"><label for="h5">🔄 Varia</label></div>
         </div>
       </div>
-      <div class="field">
-        <label>Quanto tempo por sessão você tem disponível?</label>
+      <div class="field"><label>Duração por sessão</label>
         <div class="choices">
-          <div class="choice-item"><input type="radio" name="tempo" id="t1" value="Até 30 minutos"><label for="t1">≤ 30 min</label></div>
-          <div class="choice-item"><input type="radio" name="tempo" id="t2" value="30–45 minutos"><label for="t2">30–45 min</label></div>
-          <div class="choice-item"><input type="radio" name="tempo" id="t3" value="45–60 minutos"><label for="t3">45–60 min</label></div>
-          <div class="choice-item"><input type="radio" name="tempo" id="t4" value="60–90 minutos"><label for="t4">60–90 min</label></div>
-          <div class="choice-item"><input type="radio" name="tempo" id="t5" value="Mais de 90 minutos"><label for="t5">> 90 min</label></div>
+          <div class="choice-item"><input type="radio" name="tempo" id="t1" value="até 30 min"><label for="t1">≤30min</label></div>
+          <div class="choice-item"><input type="radio" name="tempo" id="t2" value="30–45 min"><label for="t2">30–45min</label></div>
+          <div class="choice-item"><input type="radio" name="tempo" id="t3" value="45–60 min"><label for="t3">45–60min</label></div>
+          <div class="choice-item"><input type="radio" name="tempo" id="t4" value="60–90 min"><label for="t4">60–90min</label></div>
+          <div class="choice-item"><input type="radio" name="tempo" id="t5" value="+90 min"><label for="t5">>90min</label></div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- 5. LOCAL E CONDIÇÕES -->
-  <div class="section" data-section="5">
-    <div class="section-header">
-      <div class="section-num">05</div>
-      <div class="section-title">Local de Treino e Condições</div>
-      <div class="section-icon">📍</div>
-      <div class="chevron"></div>
-    </div>
+  <div class="section">
+    <div class="section-header"><div class="section-num">05</div><div class="section-title">Local e Condições</div><div class="chevron"></div></div>
     <div class="section-body">
-      <div class="field">
-        <label>Onde você treina? <span class="req">*</span></label>
+      <div class="field"><label>Onde treina? <span class="req">*</span></label>
         <div class="choices">
           <div class="choice-item"><input type="checkbox" name="local" id="l1" value="Rua plana (asfalto)"><label for="l1">🏙️ Rua plana</label></div>
-          <div class="choice-item"><input type="checkbox" name="local" id="l2" value="Parque com subidas leves"><label for="l2">🌳 Parque c/ subidas</label></div>
+          <div class="choice-item"><input type="checkbox" name="local" id="l2" value="Parque com subidas"><label for="l2">🌳 Parque</label></div>
           <div class="choice-item"><input type="checkbox" name="local" id="l3" value="Pista de atletismo"><label for="l3">🏟️ Pista</label></div>
           <div class="choice-item"><input type="checkbox" name="local" id="l4" value="Esteira"><label for="l4">⚙️ Esteira</label></div>
           <div class="choice-item"><input type="checkbox" name="local" id="l5" value="Trilhas / trail"><label for="l5">🏔️ Trilhas</label></div>
-          <div class="choice-item"><input type="checkbox" name="local" id="l6" value="Misto"><label for="l6">🔀 Misto</label></div>
         </div>
       </div>
-      <div class="field">
-        <label>Descreva o terreno / percurso habitual</label>
-        <textarea id="terreno" placeholder="Ex: Corro no Parque da Cidade — percurso de 5km com subida de 80m no meio. No asfalto ao redor do parque é plano."></textarea>
-      </div>
-      <div class="field">
-        <label>Faz ou pretende fazer alguma atividade complementar?</label>
+      <div class="field"><label>Descreva seu percurso habitual</label><textarea id="terreno" placeholder="Ex: Parque da Cidade — 5km com subida de 80m no meio."></textarea></div>
+      <div class="field"><label>Atividades complementares</label>
         <div class="choices">
           <div class="choice-item"><input type="checkbox" name="comp" id="c1" value="Musculação"><label for="c1">🏋️ Musculação</label></div>
           <div class="choice-item"><input type="checkbox" name="comp" id="c2" value="Natação"><label for="c2">🏊 Natação</label></div>
@@ -630,190 +307,273 @@
     </div>
   </div>
 
-  <!-- 6. FC E EXTRAS -->
-  <div class="section" data-section="6">
-    <div class="section-header">
-      <div class="section-num">06</div>
-      <div class="section-title">Frequência Cardíaca e Extras</div>
-      <div class="section-icon">❤️</div>
-      <div class="chevron"></div>
-    </div>
+  <div class="section">
+    <div class="section-header"><div class="section-num">06</div><div class="section-title">Frequência Cardíaca e Extras</div><div class="chevron"></div></div>
     <div class="section-body">
-      <div class="field">
-        <label>Conhece sua FC máxima ou suas zonas de FC?</label>
+      <div class="field"><label>Conhece suas zonas de FC?</label>
         <div class="choices">
-          <div class="choice-item"><input type="radio" name="fc_conhece" id="fc1" value="Sim, tenho as zonas do relógio"><label for="fc1">✅ Sim, tenho do relógio</label></div>
-          <div class="choice-item"><input type="radio" name="fc_conhece" id="fc2" value="Sei minha FC máxima"><label for="fc2">Sei minha FC máx</label></div>
-          <div class="choice-item"><input type="radio" name="fc_conhece" id="fc3" value="Não sei, pode calcular"><label for="fc3">Não sei — pode calcular</label></div>
+          <div class="choice-item"><input type="radio" name="fc_conhece" id="fc1" value="Sim, tenho as zonas do relógio"><label for="fc1">✅ Tenho do relógio</label></div>
+          <div class="choice-item"><input type="radio" name="fc_conhece" id="fc2" value="Sei minha FC máxima"><label for="fc2">Sei a FC máx</label></div>
+          <div class="choice-item"><input type="radio" name="fc_conhece" id="fc3" value="Não sei — calcular pela idade"><label for="fc3">Não sei — calcular</label></div>
         </div>
       </div>
-      <div class="field">
-        <label>Se souber, informe a FC máxima ou as faixas de zona</label>
-        <textarea id="fc_dados" placeholder="Ex: FC máx = 188 bpm&#10;Z1: 94–113 | Z2: 113–132 | Z3: 132–151 | Z4: 151–170 | Z5: 170–188&#10;&#10;Ou: 'Minha FC máx é 185 bpm'&#10;Ou deixe em branco se não souber."></textarea>
-        <span class="hint">Se tiver relógio, vá em Configurações → Zonas FC e anote os valores.</span>
+      <div class="field"><label>Dados de FC (se souber)</label>
+        <textarea id="fc_dados" placeholder="Ex: FC máx = 188 bpm&#10;Z1: 94–113 | Z2: 113–132 | Z3: 132–151 | Z4: 151–170 | Z5: 170–188&#10;Ou deixe em branco."></textarea>
+        <span class="hint">Garmin: Configurações → Zonas de Frequência Cardíaca</span>
       </div>
-      <div class="divider"></div>
-      <div class="field">
-        <label>Há alguma restrição de saúde que devemos saber?</label>
-        <textarea id="saude" placeholder="Ex: Hipertensão controlada, diabetes tipo 2, problema no joelho... ou 'Nenhuma'."></textarea>
-      </div>
-      <div class="field">
-        <label>Algo mais que queira compartilhar ou que ache importante?</label>
-        <textarea id="obs" placeholder="Ex: Tenho dificuldade de manter a cadência, odeio treinar na chuva, quero evitar treinos muito cedo..."></textarea>
-      </div>
+      <div class="field"><label>Restrições de saúde</label><textarea id="saude" placeholder="Hipertensão, diabetes, problemas articulares... ou 'Nenhuma'."></textarea></div>
+      <div class="field"><label>Observações livres</label><textarea id="obs" placeholder="Qualquer informação extra que ache importante."></textarea></div>
     </div>
   </div>
 
-</div><!-- /form-wrap -->
+</div>
 
 <!-- SUBMIT -->
 <div class="submit-wrap">
-  <button class="btn-submit" onclick="gerarResumo()">GERAR RESUMO DO PERFIL →</button>
+  <button class="btn-submit" id="btnSubmit" onclick="iniciarGeracao()">
+    <span>GERAR MEU PLANO DE TREINOS</span><span>→</span>
+  </button>
+</div>
+
+<!-- STATUS -->
+<div id="status-wrap">
+  <div class="status-card">
+    <div class="spinner" id="spinner"></div>
+    <h3 id="status-title">Gerando seu plano...</h3>
+    <p id="status-desc">Isso pode levar até 30 segundos</p>
+    <div class="steps">
+      <div class="step" id="step1"><div class="step-icon">🔍</div> Analisando seu perfil</div>
+      <div class="step" id="step2"><div class="step-icon">🤖</div> Claude gerando plano periodizado</div>
+      <div class="step" id="step3"><div class="step-icon">📧</div> Enviando para seu e-mail</div>
+      <div class="step" id="step4"><div class="step-icon">📋</div> Enviando cópia para o coach</div>
+    </div>
+  </div>
 </div>
 
 <!-- RESULT -->
 <div id="result">
-  <h3>✅ PERFIL GERADO</h3>
-  <div id="result-content"></div>
-  <button class="copy-btn" onclick="copiarResumo()">📋 Copiar para enviar ao Bruno</button>
+  <div class="result-card">
+    <h3>✅ PLANO GERADO E ENVIADO!</h3>
+    <p>Seu plano personalizado foi gerado pela IA e enviado por e-mail. Verifique sua caixa de entrada.</p>
+    <div class="email-sent">📧 Enviado para: <strong id="email-user-addr"></strong></div>
+    <div class="email-sent">📋 Cópia enviada ao coach: <strong>brunofroca01@gmail.com</strong></div>
+  </div>
 </div>
 
 <script>
-  // ── ACCORDION ────────────────────────────────────────────────
-  document.querySelectorAll('.section-header').forEach(header => {
-    header.addEventListener('click', () => {
-      const sec = header.closest('.section');
-      sec.classList.toggle('open');
-      updateProgress();
-    });
+// CONFIG
+let CFG = {
+  claudeKey:'',
+  emailjsPub:'FObfx_qMHM1wQxZ1C',
+  serviceId:'service_wxistmu',
+  templateId:'template_cfilv9a',
+  adminEmail:'brunofroca01@gmail.com'
+};
+
+function saveConfig(){
+  const k=document.getElementById('cfg-claude').value.trim();
+  if(!k){alert('Insira a API Key do Claude.');return;}
+  CFG.claudeKey=k;
+  CFG.emailjsPub=document.getElementById('cfg-emailjs-pub').value.trim()||CFG.emailjsPub;
+  CFG.serviceId=document.getElementById('cfg-service').value.trim()||CFG.serviceId;
+  CFG.templateId=document.getElementById('cfg-template').value.trim()||CFG.templateId;
+  CFG.adminEmail=document.getElementById('cfg-admin').value.trim()||CFG.adminEmail;
+  emailjs.init(CFG.emailjsPub);
+  document.getElementById('statusDot').classList.add('ok');
+  document.getElementById('statusText').textContent='Configurado ✓';
+  document.getElementById('config-panel').style.display='none';
+  document.getElementById('configToggle').style.display='flex';
+}
+
+function toggleConfig(){
+  const p=document.getElementById('config-panel');
+  const showing=p.style.display!=='none'&&p.style.display!=='';
+  p.style.display=showing?'none':'block';
+  document.getElementById('configToggle').style.display=showing?'flex':'none';
+}
+
+// ACCORDION
+document.querySelectorAll('.section-header').forEach(h=>{
+  h.addEventListener('click',()=>{h.closest('.section').classList.toggle('open');updateProgress();});
+});
+
+// PROGRESS
+function updateProgress(){
+  const checks=[
+    ()=>document.getElementById('nome').value.trim(),
+    ()=>document.getElementById('email').value.trim(),
+    ()=>document.getElementById('idade').value.trim(),
+    ()=>document.querySelector('input[name="nivel"]:checked'),
+    ()=>document.querySelector('input[name="objetivo"]:checked'),
+    ()=>document.querySelector('input[name="distancia"]:checked'),
+    ()=>document.getElementById('prazo').value.trim(),
+    ()=>document.querySelector('input[name="dias_num"]:checked'),
+  ];
+  const filled=checks.filter(fn=>fn()).length;
+  const pct=Math.round(filled/checks.length*100);
+  document.getElementById('progressFill').style.width=pct+'%';
+  document.getElementById('progressLabel').textContent=pct+'%';
+}
+document.querySelectorAll('input,select,textarea').forEach(el=>{
+  el.addEventListener('change',updateProgress);
+  el.addEventListener('input',updateProgress);
+});
+
+// HELPERS
+const val=id=>(document.getElementById(id)?.value||'').trim();
+const rad=n=>document.querySelector(`input[name="${n}"]:checked`)?.value||'—';
+const chks=n=>[...document.querySelectorAll(`input[name="${n}"]:checked`)].map(e=>e.value).join(', ')||'—';
+
+function coletarPerfil(){
+  return{
+    nome:val('nome'),email:val('email'),cidade:val('cidade'),idade:val('idade'),
+    sexo:val('sexo')||'—',peso:val('peso')||'—',altura:val('altura')||'—',
+    relogio:rad('relogio'),nivel:rad('nivel'),volume:val('volume')||'—',
+    prova:rad('prova'),pace_atual:val('pace_atual')||'—',lesao:val('lesao')||'Nenhuma',
+    objetivo:rad('objetivo'),distancia:rad('distancia'),
+    pace_alvo:val('pace_alvo')||'Sem alvo definido',prazo:val('prazo'),
+    dias_num:rad('dias_num'),dias:chks('dias'),horario:rad('horario'),tempo:rad('tempo'),
+    local:chks('local'),terreno:val('terreno')||'—',comp:chks('comp'),
+    fc_conhece:rad('fc_conhece'),fc_dados:val('fc_dados')||'Calcular pela idade',
+    saude:val('saude')||'Nenhuma',obs:val('obs')||'Nenhuma',
+  };
+}
+
+function validar(p){
+  if(!p.nome) return'Informe seu nome (Seção 01).';
+  if(!p.email||!p.email.includes('@')) return'Informe um e-mail válido (Seção 01).';
+  if(!p.idade) return'Informe sua idade (Seção 01).';
+  if(p.nivel==='—') return'Selecione seu nível (Seção 02).';
+  if(p.objetivo==='—') return'Selecione seu objetivo (Seção 03).';
+  if(p.distancia==='—') return'Selecione a distância-alvo (Seção 03).';
+  if(!p.prazo) return'Informe o prazo ou data da prova (Seção 03).';
+  if(p.dias_num==='—') return'Selecione quantos dias por semana (Seção 04).';
+  return null;
+}
+
+function setStep(n,state){
+  document.getElementById('step'+n).className='step '+(state==='active'?'active':state==='done'?'done-step':state==='error'?'error-step':'');
+}
+
+async function gerarComClaude(p){
+  const fcInfo=p.fc_dados!=='Calcular pela idade'
+    ?'Zonas de FC fornecidas pelo atleta:\n'+p.fc_dados
+    :`FC Máx estimada: ${220-parseInt(p.idade)} bpm (fórmula 220 - idade)\nCalcular zonas: Z1 50-60%, Z2 60-70%, Z3 70-80%, Z4 80-90%, Z5 90-100%`;
+
+  const prompt=`Você é um coach de corrida de rua especializado. Crie um plano de treinos periodizado completo e personalizado com base no perfil abaixo.
+
+=== PERFIL ===
+Nome: ${p.nome} | Cidade: ${p.cidade} | Idade: ${p.idade} anos | Sexo: ${p.sexo}
+Peso: ${p.peso}kg | Altura: ${p.altura}cm | Relógio: ${p.relogio}
+Nível: ${p.nivel} | Volume atual: ${p.volume}
+Experiência em provas: ${p.prova} | Pace atual: ${p.pace_atual}
+Lesões: ${p.lesao} | Saúde: ${p.saude}
+
+=== OBJETIVO ===
+Meta: ${p.objetivo} | Distância-alvo: ${p.distancia}
+Pace alvo: ${p.pace_alvo} | Prazo: ${p.prazo}
+
+=== DISPONIBILIDADE ===
+${p.dias_num} de treino | Dias: ${p.dias} | Horário: ${p.horario} | Duração: ${p.tempo}
+
+=== LOCAL ===
+${p.local} | Terreno: ${p.terreno} | Complementares: ${p.comp}
+
+=== FREQUÊNCIA CARDÍACA ===
+${fcInfo}
+
+=== OBSERVAÇÕES ===
+${p.obs}
+
+=== INSTRUÇÕES ===
+Monte um plano periodizado com:
+• Fases claras: Base → Construção → Velocidade/Pico → Taper (se aplicável)
+• Duração total compatível com o prazo informado
+• ${p.dias_num} sessões/semana nos dias: ${p.dias}
+• Cada sessão com: título, tipo de treino, distância, pace alvo, zona de FC, estrutura (aquecimento → blocos → volta à calma)
+• Semanas de recuperação a cada 3–4 semanas (volume -25%)
+• Progressão gradual (regra dos 10%)
+• Considerar lesões e restrições de saúde
+
+Use emojis para facilitar a leitura. Seja específico com paces e distâncias. Formate com seções bem definidas.`;
+
+  const res=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'x-api-key':CFG.claudeKey,
+      'anthropic-version':'2023-06-01',
+      'anthropic-dangerous-direct-browser-access':'true'
+    },
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4000,messages:[{role:'user',content:prompt}]})
   });
+  if(!res.ok){const e=await res.json();throw new Error(e.error?.message||'Erro na API do Claude');}
+  const data=await res.json();
+  return data.content[0].text;
+}
 
-  // ── PROGRESS ─────────────────────────────────────────────────
-  function updateProgress() {
-    const required = ['nome','idade','nivel','objetivo','distancia','prazo','dias_num'];
-    let filled = 0;
-    required.forEach(id => {
-      const el = document.getElementById(id);
-      if (el && el.value && el.value.trim()) { filled++; return; }
-      const radio = document.querySelector(`input[name="${id}"]:checked`);
-      if (radio) filled++;
-    });
-    const pct = Math.round((filled / required.length) * 100);
-    document.getElementById('progressFill').style.width = pct + '%';
-    document.getElementById('progressLabel').textContent = filled + ' / ' + required.length;
-  }
-
-  document.querySelectorAll('input, select, textarea').forEach(el => {
-    el.addEventListener('change', updateProgress);
-    el.addEventListener('input', updateProgress);
+async function enviarEmail(para,nome,plano,isAdmin){
+  return emailjs.send(CFG.serviceId,CFG.templateId,{
+    to_email:para,
+    to_name:isAdmin?'Bruno (Coach)':nome,
+    from_name:'Coach de Corrida — ABV',
+    subject:isAdmin?`[Coach ABV] Novo plano — ${nome}`:`🏃 Seu plano personalizado — ${nome}`,
+    message:plano,
+    athlete_name:nome,
   });
+}
 
-  // ── GERAR RESUMO ─────────────────────────────────────────────
-  function val(id) {
-    const el = document.getElementById(id);
-    return el ? (el.value || '').trim() : '';
+async function iniciarGeracao(){
+  if(!CFG.claudeKey){alert('⚠️ Configure sua API Key do Claude primeiro.\nClique no botão ⚙️ no canto inferior direito.');return;}
+  const p=coletarPerfil();
+  const erro=validar(p);
+  if(erro){alert('⚠️ '+erro);return;}
+
+  document.getElementById('btnSubmit').disabled=true;
+  document.querySelector('.form-wrap').style.cssText='opacity:.4;pointer-events:none';
+  document.getElementById('status-wrap').style.display='block';
+  document.getElementById('status-wrap').scrollIntoView({behavior:'smooth'});
+
+  try{
+    setStep(1,'active');
+    await sleep(700);
+    setStep(1,'done');
+
+    setStep(2,'active');
+    document.getElementById('status-title').textContent='Claude gerando seu plano...';
+    const plano=await gerarComClaude(p);
+    setStep(2,'done');
+
+    setStep(3,'active');
+    document.getElementById('status-title').textContent='Enviando e-mail...';
+    await enviarEmail(p.email,p.nome,plano,false);
+    setStep(3,'done');
+
+    setStep(4,'active');
+    document.getElementById('status-title').textContent='Enviando cópia ao coach...';
+    await enviarEmail(CFG.adminEmail,p.nome,plano,true);
+    setStep(4,'done');
+
+    document.getElementById('spinner').style.display='none';
+    document.getElementById('status-title').textContent='✅ Concluído!';
+    document.getElementById('status-desc').textContent='Plano gerado e e-mails enviados.';
+    await sleep(1200);
+    document.getElementById('status-wrap').style.display='none';
+    document.getElementById('email-user-addr').textContent=p.email;
+    document.getElementById('result').style.display='block';
+    document.getElementById('result').scrollIntoView({behavior:'smooth'});
+
+  }catch(err){
+    console.error(err);
+    document.getElementById('spinner').style.display='none';
+    document.getElementById('status-title').textContent='❌ Erro';
+    document.getElementById('status-desc').textContent=err.message||'Verifique as configurações e tente novamente.';
+    document.getElementById('btnSubmit').disabled=false;
+    document.querySelector('.form-wrap').style.cssText='';
   }
-  function radio(name) {
-    const el = document.querySelector(`input[name="${name}"]:checked`);
-    return el ? el.value : '—';
-  }
-  function checks(name) {
-    const els = document.querySelectorAll(`input[name="${name}"]:checked`);
-    return els.length ? [...els].map(e => e.value).join(', ') : '—';
-  }
+}
 
-  function gerarResumo() {
-    const nome    = val('nome')    || '—';
-    const cidade  = val('cidade')  || '—';
-    const idade   = val('idade')   || '—';
-    const sexo    = val('sexo')    || '—';
-    const peso    = val('peso')    || '—';
-    const altura  = val('altura')  || '—';
-    const relogio = radio('relogio');
-    const nivel   = radio('nivel');
-    const volume  = val('volume')  || radio('volume') || '—';
-    const prova   = radio('prova');
-    const paceAt  = val('pace_atual') || '—';
-    const lesao   = val('lesao')   || 'Nenhuma';
-    const obj     = radio('objetivo');
-    const dist    = radio('distancia');
-    const paceAlv = val('pace_alvo') || '—';
-    const prazo   = val('prazo')   || '—';
-    const diasN   = radio('dias_num');
-    const dias    = checks('dias');
-    const horario = radio('horario');
-    const tempo   = radio('tempo');
-    const local   = checks('local');
-    const terreno = val('terreno') || '—';
-    const comp    = checks('comp');
-    const fcConh  = radio('fc_conhece');
-    const fcDados = val('fc_dados') || '—';
-    const saude   = val('saude')   || 'Nenhuma';
-    const obs     = val('obs')     || 'Nenhuma';
-
-    const imc = (peso && altura) ? (peso / ((altura/100)**2)).toFixed(1) : '—';
-
-    const texto = `═══════════════════════════════════════════
-  PERFIL — PLANO DE TREINO PERSONALIZADO
-═══════════════════════════════════════════
-
-▶ PERFIL PESSOAL
-  Nome ............... ${nome}
-  Cidade ............. ${cidade}
-  Idade .............. ${idade} anos
-  Sexo ............... ${sexo}
-  Peso / Altura ...... ${peso} kg / ${altura} cm  (IMC ${imc})
-  Relógio ............ ${relogio}
-
-▶ NÍVEL E HISTÓRICO
-  Nível .............. ${nivel}
-  Volume atual ....... ${volume}
-  Experiência em provas: ${prova}
-  Pace atual ......... ${paceAt}
-  Lesões ............. ${lesao}
-
-▶ OBJETIVO E META
-  Objetivo ........... ${obj}
-  Distância-alvo ..... ${dist}
-  Pace alvo .......... ${paceAlv}
-  Prazo / Prova ...... ${prazo}
-
-▶ DISPONIBILIDADE
-  Dias/semana ........ ${diasN}
-  Dias preferidos .... ${dias}
-  Horário ............ ${horario}
-  Duração/sessão ..... ${tempo}
-
-▶ LOCAL E CONDIÇÕES
-  Local de treino .... ${local}
-  Terreno ............ ${terreno}
-  Atividades compl. .. ${comp}
-
-▶ FREQUÊNCIA CARDÍACA
-  Conhece zonas FC? .. ${fcConh}
-  Dados de FC ........ ${fcDados}
-
-▶ SAÚDE E OBSERVAÇÕES
-  Restrições saúde ... ${saude}
-  Observações ........ ${obs}
-
-═══════════════════════════════════════════
-  Gerado via Formulário de Treino — ABV
-═══════════════════════════════════════════`;
-
-    document.getElementById('result-content').textContent = texto;
-    document.getElementById('result').style.display = 'block';
-    document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-
-  function copiarResumo() {
-    const txt = document.getElementById('result-content').textContent;
-    navigator.clipboard.writeText(txt).then(() => {
-      const btn = document.querySelector('.copy-btn');
-      btn.textContent = '✅ Copiado!';
-      setTimeout(() => btn.textContent = '📋 Copiar para enviar ao Bruno', 2000);
-    });
-  }
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 </script>
 </body>
 </html>
