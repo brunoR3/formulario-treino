@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formulário — Plano de Treino Personalizado</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:       #0a0a0f;
+    --surface:  #111118;
+    --border:   #222230;
+    --accent:   #e8ff47;
+    --accent2:  #47c8ff;
+    --text:     #f0f0f8;
+    --muted:    #6b6b88;
+    --danger:   #ff4747;
+    --radius:   12px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── GRID BG ─────────────────────────────────────── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(232,255,71,.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(232,255,71,.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── HERO ────────────────────────────────────────── */
+  .hero {
+    position: relative;
+    padding: 64px 24px 48px;
+    text-align: center;
+    z-index: 1;
+  }
+  .hero-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid rgba(232,255,71,.3);
+    padding: 5px 14px;
+    border-radius: 99px;
+    margin-bottom: 20px;
+    animation: fadeDown .6s ease both;
+  }
+  .hero h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(42px, 8vw, 80px);
+    letter-spacing: .04em;
+    line-height: .95;
+    animation: fadeDown .7s .1s ease both;
+  }
+  .hero h1 span { color: var(--accent); }
+  .hero p {
+    margin-top: 16px;
+    color: var(--muted);
+    font-size: 14px;
+    max-width: 420px;
+    margin-inline: auto;
+    animation: fadeDown .7s .2s ease both;
+  }
+
+  /* ── FORM WRAPPER ────────────────────────────────── */
+  .form-wrap {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 20px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── SECTION ─────────────────────────────────────── */
+  .section {
+    margin-bottom: 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--surface);
+    animation: fadeUp .5s ease both;
+  }
+  .section:nth-child(1) { animation-delay: .1s }
+  .section:nth-child(2) { animation-delay: .2s }
+  .section:nth-child(3) { animation-delay: .3s }
+  .section:nth-child(4) { animation-delay: .4s }
+  .section:nth-child(5) { animation-delay: .5s }
+  .section:nth-child(6) { animation-delay: .6s }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 22px;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color .2s;
+  }
+  .section.open .section-header { border-color: var(--border); }
+  .section-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    background: rgba(232,255,71,.08);
+    border: 1px solid rgba(232,255,71,.2);
+    padding: 3px 8px;
+    border-radius: 6px;
+    min-width: 32px;
+    text-align: center;
+  }
+  .section-title {
+    font-weight: 600;
+    font-size: 14px;
+    flex: 1;
+  }
+  .section-icon {
+    font-size: 18px;
+    opacity: .7;
+  }
+  .chevron {
+    width: 18px; height: 18px;
+    border-right: 2px solid var(--muted);
+    border-bottom: 2px solid var(--muted);
+    transform: rotate(45deg);
+    transition: transform .3s ease;
+    margin-left: 4px;
+    flex-shrink: 0;
+  }
+  .section.open .chevron { transform: rotate(-135deg); }
+
+  .section-body {
+    display: none;
+    padding: 24px 22px;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .section.open .section-body { display: flex; }
+
+  /* ── FIELD ───────────────────────────────────────── */
+  .field { display: flex; flex-direction: column; gap: 7px; }
+  .field label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .field label .req { color: var(--accent); font-size: 11px; }
+  .field .hint {
+    font-size: 11.5px;
+    color: var(--muted);
+    font-style: italic;
+    margin-top: -4px;
+  }
+
+  input[type=text], input[type=number], input[type=email],
+  select, textarea {
+    background: rgba(255,255,255,.03);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    padding: 11px 14px;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+    width: 100%;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(232,255,71,.1);
+  }
+  select { cursor: pointer; }
+  select option { background: #1a1a28; }
+  textarea { resize: vertical; min-height: 80px; }
+
+  /* ── RADIO / CHECKBOX GROUP ──────────────────────── */
+  .choices {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .choice-item {
+    position: relative;
+  }
+  .choice-item input { display: none; }
+  .choice-item label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--muted);
+    transition: all .18s;
+    background: transparent;
+  }
+  .choice-item input:checked + label {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(232,255,71,.08);
+  }
+  .choice-item label:hover {
+    border-color: rgba(232,255,71,.4);
+    color: var(--text);
+  }
+
+  /* ── ROW ─────────────────────────────────────────── */
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 480px) { .row { grid-template-columns: 1fr; } }
+
+  /* ── DIVIDER ─────────────────────────────────────── */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 4px 0;
+  }
+
+  /* ── PROGRESS BAR ────────────────────────────────── */
+  .progress-wrap {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,10,15,.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .progress-bar {
+    flex: 1;
+    height: 4px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 99px;
+    transition: width .4s ease;
+    width: 0%;
+  }
+  .progress-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    min-width: 60px;
+    text-align: right;
+  }
+
+  /* ── SUBMIT ──────────────────────────────────────── */
+  .submit-wrap {
+    padding: 0 20px 80px;
+    max-width: 680px;
+    margin-inline: auto;
+    z-index: 1;
+    position: relative;
+  }
+  .btn-submit {
+    width: 100%;
+    padding: 16px;
+    background: var(--accent);
+    color: #0a0a0f;
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: .08em;
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
+    box-shadow: 0 0 32px rgba(232,255,71,.25);
+  }
+  .btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 48px rgba(232,255,71,.4);
+  }
+  .btn-submit:active { transform: translateY(0); }
+
+  /* ── RESULT PANEL ────────────────────────────────── */
+  #result {
+    display: none;
+    margin: 0 20px 80px;
+    max-width: 640px;
+    margin-inline: auto;
+    background: var(--surface);
+    border: 1px solid rgba(232,255,71,.3);
+    border-radius: var(--radius);
+    padding: 28px 28px;
+    position: relative;
+    z-index: 1;
+    animation: fadeUp .5s ease both;
+  }
+  #result h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+  #result-content {
+    font-size: 13.5px;
+    line-height: 1.75;
+    color: var(--text);
+    white-space: pre-wrap;
+    font-family: 'JetBrains Mono', monospace;
+    background: rgba(0,0,0,.3);
+    border-radius: 8px;
+    padding: 18px;
+    max-height: 520px;
+    overflow-y: auto;
+  }
+  .copy-btn {
+    margin-top: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 18px;
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background .2s;
+  }
+  .copy-btn:hover { background: rgba(232,255,71,.08); }
+
+  /* ── ANIMATIONS ──────────────────────────────────── */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── SCROLLBAR ───────────────────────────────────── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag">⚡ Plano de Treino Personalizado</div>
+  <h1>VAMOS MONTAR<br>SEU <span>PLANO</span></h1>
+  <p>Responda as perguntas abaixo. Quanto mais detalhes, mais preciso será seu plano de treinos.</p>
+</div>
+
+<!-- PROGRESS -->
+<div class="progress-wrap">
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="progress-label" id="progressLabel">0 / 6</div>
+</div>
+
+<!-- FORM -->
+<div class="form-wrap">
+
+  <!-- 1. PERFIL -->
+  <div class="section open" data-section="1">
+    <div class="section-header">
+      <div class="section-num">01</div>
+      <div class="section-title">Perfil Pessoal</div>
+      <div class="section-icon">🧍</div>
+      <div class="chevron"></div>
+    </div>
+    <div class="section-body">
+      <div class="row">
+        <div class="field">
+          <label>Nome completo <span class="req">*</span></label>
+          <input type="text" id="nome" placeholder="Ex: Ana Souza">
+        </div>
+        <div class="field">
+          <label>Cidade / Estado <span class="req">*</span></label>
+          <input type="text" id="cidade" placeholder="Ex: São Paulo/SP">
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>Idade <span class="req">*</span></label>
+          <input type="number" id="idade" placeholder="Ex: 32" min="14" max="80">
+        </div>
+        <div class="field">
+          <label>Sexo</label>
+          <select id="sexo">
+            <option value="">Selecione</option>
+            <option>Feminino</option>
+            <option>Masculino</option>
+            <option>Prefiro não informar</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Peso e Altura <span class="req">*</span></label>
+        <div class="row">
+          <input type="number" id="peso" placeholder="Peso (kg)  Ex: 68">
+          <input type="number" id="altura" placeholder="Altura (cm)  Ex: 168">
+        </div>
+      </div>
+      <div class="field">
+        <label>Possui algum relógio esportivo?</label>
+        <div class="choices">
+          <div class="choice-item"><input type="radio" name="relogio" id="r1" value="Garmin"><label for="r1">Garmin</label></div>
+          <div class="choice-item"><input type="radio" name="relogio" id="r2" value="Apple Watch"><label for="r2">Apple Watch</label></div>
+          <div class="choice-item"><input type="radio" name="relogio" id="r3" value="Polar"><label for="r3">Polar</label></div>
+          <div class="choice-item"><input type="radio" name="relogio" id="r4" value="Suunto"><label for="r4">Suunto</label></div>
+          <div class="choice-item"><input type="radio" name="relogio" id="r5" value="Outro"><label for="r5">Outro</label></div>
+          <div class="choice-item"><input type="radio" name="relogio" id="r6" value="Não tenho"><label for="r6">Não tenho</label></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. NÍVEL E HISTÓRICO -->
+  <div class="section" data-section="2">
+    <div class="section-header">
+      <div class="section-num">02</div>
+      <div class="section-title">Nível e Histórico de Corrida</div>
+      <div class="section-icon">📊</div>
+      <div class="chevron"></div>
+    </div>
+    <div class="section-body">
+      <div class="field">
+        <label>Como você se descreve como corredor(a)? <span class="req">*</span></label>
+        <div class="choices">
+          <div class="choice-item"><input type="radio" name="nivel" id="n1" value="Iniciante absoluto"><label for="n1">🌱 Iniciante absoluto<br><small style="color:var(--muted);font-size:10px">Nunca corri ou comecei há pouco</small></label></div>
+          <div class="choice-item"><input type="radio" name="nivel" id="n2" value="Iniciante com alguma vivência"><label for="n2">🏃 Iniciante com vivência<br><small style="color:var(--muted);font-size:10px">Já corro esporadicamente</small></label></div>
+          <div class="choice-item"><input type="radio" name="nivel" id="n3" value="Intermediário"><label for="n3">⚡ Intermediário<br><small style="color:var(--muted);font-size:10px">Treino regularmente há +6 meses</small></label></div>
+          <div class="choice-item"><input type="radio" name="nivel" id="n4" value="Avançado"><label for="n4">🔥 Avançado<br><small style="color:var(--muted);font-size:10px">Já participei de provas</small></label></div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Volume atual de corrida por semana</label>
+        <select id="volume">
+          <option value="">Selecione</option>
+          <option>Não corro atualmente</option>
+          <option>Menos de 10 km/semana</option>
+          <option>10–20 km/semana</option>
+          <option>20–35 km/semana</option>
+          <option>35–50 km/semana</option>
+          <option>Mais de 50 km/semana</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Já participou de alguma corrida/prova?</label>
+        <div class="choices">
+          <div class="choice-item"><input type="radio" name="prova" id="p0" value="Nunca participei"><label for="p0">Nunca participei</label></div>
+          <div class="choice-item"><input type="radio" name="prova" id="p1" value="Sim, provas de 5k"><label for="p1">Sim — 5k</label></div>
+          <div class="choice-item"><input type="radio" name="prova" id="p2" value="Sim, provas de 10k"><label for="p2">Sim — 10k</label></div>
+          <div class="choice-item"><input type="radio" name="prova" id="p3" value="Sim, meia maratona (21k)"><label for="p3">Sim — 21k</label></div>
+          <div class="choice-item"><input type="radio" name="prova" id="p4" value="Sim, maratona (42k)"><label for="p4">Sim — 42k</label></div>
+          <div class="choice-item"><input type="radio" name="prova" id="p5" value="Sim, trail run"><label for="p5">Sim — Trail</label></div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Qual seu pace atual (tempo médio por km)?</label>
+        <input type="text" id="pace_atual" placeholder="Ex: 6:30 min/km ou 'não sei ainda'">
+        <span class="hint">Se não souber, escreva 'não sei'. Usaremos a FC como referência.</span>
+      </div>
+      <div class="field">
+        <label>Tem alguma lesão atual ou recente que devemos considerar?</label>
+        <textarea id="lesao" placeholder="Ex: Joelho direito — tendinite leve (há 2 meses). Ou: Nenhuma."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. OBJETIVO -->
+  <div class="section" data-section="3">
+    <div class="section-header">
+      <div class="section-num">03</div>
+      <div class="section-title">Objetivo e Meta</div>
+      <div class="section-icon">🎯</div>
+      <div class="chevron"></div>
+    </div>
+    <div class="section-body">
+      <div class="field">
+        <label>Qual é o seu objetivo principal? <span class="req">*</span></label>
+        <div class="choices">
+          <div class="choice-item"><input type="radio" name="objetivo" id="o1" value="Completar minha primeira corrida de rua"><label for="o1">🏁 Completar minha primeira corrida</label></div>
+          <div class="choice-item"><input type="radio" name="objetivo" id="o2" value="Melhorar meu pace / bater recorde pessoal"><label for="o2">⚡ Melhorar pace / bater PR</label></div>
+          <div class="choice-item"><input type="radio" name="objetivo" id="o3" value="Perder peso e melhorar condicionamento"><label for="o3">🔥 Perder peso / condicionamento</label></div>
+          <div class="choice-item"><input type="radio" name="objetivo" id="o4" value="Preparar para trail run"><label for="o4">🏔️ Trail run</label></div>
+          <div class="choice-item"><input type="radio" name="objetivo" id="o5" value="Manter saúde e bem-estar geral"><label for="o5">💚 Saúde e bem-estar</label></div>
+          <div class="choice-item"><input type="radio" name="objetivo" id="o6" value="Outro"><label for="o6">✍️ Outro</label></div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Qual distância você quer conquistar? <span class="req">*</span></label>
+        <div class="choices">
+          <div class="choice-item"><input type="radio" name="distancia" id="d1" value="5k"><label for="d1">5k</label></div>
+          <div class="choice-item"><input type="radio" name="distancia" id="d2" value="10k"><label for="d2">10k</label></div>
+          <div class="choice-item"><input type="radio" name="distancia" id="d3" value="15k"><label for="d3">15k</label></div>
+          <div class="choice-item"><input type="radio" name="distancia" id="d4" value="21k (Meia Maratona)"><label for="d4">21k — Meia</label></div>
+          <div class="choice-item"><input type="radio" name="distancia" id="d5" value="42k (Maratona)"><label for="d5">42k — Maratona</label></div>
+          <div class="choice-item"><input type="radio" name="distancia" id="d6" value="Trail personalizado"><label for="d6">Trail personalizado</label></div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Tem pace alvo para essa distância?</label>
+        <input type="text" id="pace_alvo" placeholder="Ex: 5:45 min/km ou 'só quero terminar'">
+      </div>
+      <div class="field">
+        <label>Tem data de prova ou prazo definido? <span class="req">*</span></label>
+        <input type="text" id="prazo" placeholder="Ex: Dezembro/2025 ou 'não tenho prova marcada'">
+        <span class="hint">Se tiver uma prova específica, informe também o nome e cidade.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. DISPONIBILIDADE -->
+  <div class="section" data-section="4">
+    <div class="section-header">
+      <div class="section-num">04</div>
+      <div class="section-title">Disponibilidade e Rotina</div>
+      <div class="section-icon">📅</div>
+      <div class="chevron"></div>
+    </div>
+    <div class="section-body">
+      <div class="field">
+        <label>Quantos dias por semana você pode treinar? <span class="req">*</span></label>
+        <div class="choices">
+          <div class="choice-item"><input type="radio" name="dias_num" id="dn2" value="2 dias"><label for="dn2">2 dias</label></div>
+          <div class="choice-item"><input type="radio" name="dias_num" id="dn3" value="3 dias"><label for="dn3">3 dias</label></div>
+          <div class="choice-item"><input type="radio" name="dias_num" id="dn4" value="4 dias"><label for="dn4">4 dias</label></div>
+          <div class="choice-item"><input type="radio" name="dias_num" id="dn5" value="5 dias"><label for="dn5">5 dias</label></div>
+          <div class="choice-item"><input type="radio" name="dias_num" id="dn6" value="6+ dias"><label for="dn6">6+ dias</label></div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Quais dias da semana são melhores para você? <span class="req">*</span></label>
+        <div class="choices">
+          <div class="choice-item"><input type="checkbox" name="dias" id="seg" value="Segunda"><label for="seg">Seg</label></div>
+          <div class="choice-item"><input type="checkbox" name="dias" id="ter" value="Terça"><label for="ter">Ter</label></div>
+          <div class="choice-item"><input type="checkbox" name="dias" id="qua" value="Quarta"><label for="qua">Qua</label></div>
+          <div class="choice-item"><input type="checkbox" name="dias" id="qui" value="Quinta"><label for="qui">Qui</label></div>
+          <div class="choice-item"><input type="checkbox" name="dias" id="sex" value="Sexta"><label for="sex">Sex</label></div>
+          <div class="choice-item"><input type="checkbox" name="dias" id="sab" value="Sábado"><label for="sab">Sáb</label></div>
+          <div class="choice-item"><input type="checkbox" name="dias" id="dom" value="Domingo"><label for="dom">Dom</label></div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Qual o melhor horário para treinar?</label>
+        <div class="choices">
+          <div class="choice-item"><input type="radio" name="horario" id="h1" value="Manhã (antes do trabalho)"><label for="h1">🌅 Manhã</label></div>
+          <div class="choice-item"><input type="radio" name="horario" id="h2" value="Meio-dia / intervalo"><label for="h2">☀️ Meio-dia</label></div>
+          <div class="choice-item"><input type="radio" name="horario" id="h3" value="Tarde"><label for="h3">🌤️ Tarde</label></div>
+          <div class="choice-item"><input type="radio" name="horario" id="h4" value="Noite"><label for="h4">🌙 Noite</label></div>
+          <div class="choice-item"><input type="radio" name="horario" id="h5" value="Varia conforme o dia"><label for="h5">🔄 Varia</label></div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Quanto tempo por sessão você tem disponível?</label>
+        <div class="choices">
+          <div class="choice-item"><input type="radio" name="tempo" id="t1" value="Até 30 minutos"><label for="t1">≤ 30 min</label></div>
+          <div class="choice-item"><input type="radio" name="tempo" id="t2" value="30–45 minutos"><label for="t2">30–45 min</label></div>
+          <div class="choice-item"><input type="radio" name="tempo" id="t3" value="45–60 minutos"><label for="t3">45–60 min</label></div>
+          <div class="choice-item"><input type="radio" name="tempo" id="t4" value="60–90 minutos"><label for="t4">60–90 min</label></div>
+          <div class="choice-item"><input type="radio" name="tempo" id="t5" value="Mais de 90 minutos"><label for="t5">> 90 min</label></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. LOCAL E CONDIÇÕES -->
+  <div class="section" data-section="5">
+    <div class="section-header">
+      <div class="section-num">05</div>
+      <div class="section-title">Local de Treino e Condições</div>
+      <div class="section-icon">📍</div>
+      <div class="chevron"></div>
+    </div>
+    <div class="section-body">
+      <div class="field">
+        <label>Onde você treina? <span class="req">*</span></label>
+        <div class="choices">
+          <div class="choice-item"><input type="checkbox" name="local" id="l1" value="Rua plana (asfalto)"><label for="l1">🏙️ Rua plana</label></div>
+          <div class="choice-item"><input type="checkbox" name="local" id="l2" value="Parque com subidas leves"><label for="l2">🌳 Parque c/ subidas</label></div>
+          <div class="choice-item"><input type="checkbox" name="local" id="l3" value="Pista de atletismo"><label for="l3">🏟️ Pista</label></div>
+          <div class="choice-item"><input type="checkbox" name="local" id="l4" value="Esteira"><label for="l4">⚙️ Esteira</label></div>
+          <div class="choice-item"><input type="checkbox" name="local" id="l5" value="Trilhas / trail"><label for="l5">🏔️ Trilhas</label></div>
+          <div class="choice-item"><input type="checkbox" name="local" id="l6" value="Misto"><label for="l6">🔀 Misto</label></div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Descreva o terreno / percurso habitual</label>
+        <textarea id="terreno" placeholder="Ex: Corro no Parque da Cidade — percurso de 5km com subida de 80m no meio. No asfalto ao redor do parque é plano."></textarea>
+      </div>
+      <div class="field">
+        <label>Faz ou pretende fazer alguma atividade complementar?</label>
+        <div class="choices">
+          <div class="choice-item"><input type="checkbox" name="comp" id="c1" value="Musculação"><label for="c1">🏋️ Musculação</label></div>
+          <div class="choice-item"><input type="checkbox" name="comp" id="c2" value="Natação"><label for="c2">🏊 Natação</label></div>
+          <div class="choice-item"><input type="checkbox" name="comp" id="c3" value="Ciclismo"><label for="c3">🚴 Ciclismo</label></div>
+          <div class="choice-item"><input type="checkbox" name="comp" id="c4" value="Yoga / alongamento"><label for="c4">🧘 Yoga</label></div>
+          <div class="choice-item"><input type="checkbox" name="comp" id="c5" value="Funcional"><label for="c5">⚡ Funcional</label></div>
+          <div class="choice-item"><input type="checkbox" name="comp" id="c6" value="Nenhuma"><label for="c6">Nenhuma</label></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. FC E EXTRAS -->
+  <div class="section" data-section="6">
+    <div class="section-header">
+      <div class="section-num">06</div>
+      <div class="section-title">Frequência Cardíaca e Extras</div>
+      <div class="section-icon">❤️</div>
+      <div class="chevron"></div>
+    </div>
+    <div class="section-body">
+      <div class="field">
+        <label>Conhece sua FC máxima ou suas zonas de FC?</label>
+        <div class="choices">
+          <div class="choice-item"><input type="radio" name="fc_conhece" id="fc1" value="Sim, tenho as zonas do relógio"><label for="fc1">✅ Sim, tenho do relógio</label></div>
+          <div class="choice-item"><input type="radio" name="fc_conhece" id="fc2" value="Sei minha FC máxima"><label for="fc2">Sei minha FC máx</label></div>
+          <div class="choice-item"><input type="radio" name="fc_conhece" id="fc3" value="Não sei, pode calcular"><label for="fc3">Não sei — pode calcular</label></div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Se souber, informe a FC máxima ou as faixas de zona</label>
+        <textarea id="fc_dados" placeholder="Ex: FC máx = 188 bpm&#10;Z1: 94–113 | Z2: 113–132 | Z3: 132–151 | Z4: 151–170 | Z5: 170–188&#10;&#10;Ou: 'Minha FC máx é 185 bpm'&#10;Ou deixe em branco se não souber."></textarea>
+        <span class="hint">Se tiver relógio, vá em Configurações → Zonas FC e anote os valores.</span>
+      </div>
+      <div class="divider"></div>
+      <div class="field">
+        <label>Há alguma restrição de saúde que devemos saber?</label>
+        <textarea id="saude" placeholder="Ex: Hipertensão controlada, diabetes tipo 2, problema no joelho... ou 'Nenhuma'."></textarea>
+      </div>
+      <div class="field">
+        <label>Algo mais que queira compartilhar ou que ache importante?</label>
+        <textarea id="obs" placeholder="Ex: Tenho dificuldade de manter a cadência, odeio treinar na chuva, quero evitar treinos muito cedo..."></textarea>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /form-wrap -->
+
+<!-- SUBMIT -->
+<div class="submit-wrap">
+  <button class="btn-submit" onclick="gerarResumo()">GERAR RESUMO DO PERFIL →</button>
+</div>
+
+<!-- RESULT -->
+<div id="result">
+  <h3>✅ PERFIL GERADO</h3>
+  <div id="result-content"></div>
+  <button class="copy-btn" onclick="copiarResumo()">📋 Copiar para enviar ao Bruno</button>
+</div>
+
+<script>
+  // ── ACCORDION ────────────────────────────────────────────────
+  document.querySelectorAll('.section-header').forEach(header => {
+    header.addEventListener('click', () => {
+      const sec = header.closest('.section');
+      sec.classList.toggle('open');
+      updateProgress();
+    });
+  });
+
+  // ── PROGRESS ─────────────────────────────────────────────────
+  function updateProgress() {
+    const required = ['nome','idade','nivel','objetivo','distancia','prazo','dias_num'];
+    let filled = 0;
+    required.forEach(id => {
+      const el = document.getElementById(id);
+      if (el && el.value && el.value.trim()) { filled++; return; }
+      const radio = document.querySelector(`input[name="${id}"]:checked`);
+      if (radio) filled++;
+    });
+    const pct = Math.round((filled / required.length) * 100);
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressLabel').textContent = filled + ' / ' + required.length;
+  }
+
+  document.querySelectorAll('input, select, textarea').forEach(el => {
+    el.addEventListener('change', updateProgress);
+    el.addEventListener('input', updateProgress);
+  });
+
+  // ── GERAR RESUMO ─────────────────────────────────────────────
+  function val(id) {
+    const el = document.getElementById(id);
+    return el ? (el.value || '').trim() : '';
+  }
+  function radio(name) {
+    const el = document.querySelector(`input[name="${name}"]:checked`);
+    return el ? el.value : '—';
+  }
+  function checks(name) {
+    const els = document.querySelectorAll(`input[name="${name}"]:checked`);
+    return els.length ? [...els].map(e => e.value).join(', ') : '—';
+  }
+
+  function gerarResumo() {
+    const nome    = val('nome')    || '—';
+    const cidade  = val('cidade')  || '—';
+    const idade   = val('idade')   || '—';
+    const sexo    = val('sexo')    || '—';
+    const peso    = val('peso')    || '—';
+    const altura  = val('altura')  || '—';
+    const relogio = radio('relogio');
+    const nivel   = radio('nivel');
+    const volume  = val('volume')  || radio('volume') || '—';
+    const prova   = radio('prova');
+    const paceAt  = val('pace_atual') || '—';
+    const lesao   = val('lesao')   || 'Nenhuma';
+    const obj     = radio('objetivo');
+    const dist    = radio('distancia');
+    const paceAlv = val('pace_alvo') || '—';
+    const prazo   = val('prazo')   || '—';
+    const diasN   = radio('dias_num');
+    const dias    = checks('dias');
+    const horario = radio('horario');
+    const tempo   = radio('tempo');
+    const local   = checks('local');
+    const terreno = val('terreno') || '—';
+    const comp    = checks('comp');
+    const fcConh  = radio('fc_conhece');
+    const fcDados = val('fc_dados') || '—';
+    const saude   = val('saude')   || 'Nenhuma';
+    const obs     = val('obs')     || 'Nenhuma';
+
+    const imc = (peso && altura) ? (peso / ((altura/100)**2)).toFixed(1) : '—';
+
+    const texto = `═══════════════════════════════════════════
+  PERFIL — PLANO DE TREINO PERSONALIZADO
+═══════════════════════════════════════════
+
+▶ PERFIL PESSOAL
+  Nome ............... ${nome}
+  Cidade ............. ${cidade}
+  Idade .............. ${idade} anos
+  Sexo ............... ${sexo}
+  Peso / Altura ...... ${peso} kg / ${altura} cm  (IMC ${imc})
+  Relógio ............ ${relogio}
+
+▶ NÍVEL E HISTÓRICO
+  Nível .............. ${nivel}
+  Volume atual ....... ${volume}
+  Experiência em provas: ${prova}
+  Pace atual ......... ${paceAt}
+  Lesões ............. ${lesao}
+
+▶ OBJETIVO E META
+  Objetivo ........... ${obj}
+  Distância-alvo ..... ${dist}
+  Pace alvo .......... ${paceAlv}
+  Prazo / Prova ...... ${prazo}
+
+▶ DISPONIBILIDADE
+  Dias/semana ........ ${diasN}
+  Dias preferidos .... ${dias}
+  Horário ............ ${horario}
+  Duração/sessão ..... ${tempo}
+
+▶ LOCAL E CONDIÇÕES
+  Local de treino .... ${local}
+  Terreno ............ ${terreno}
+  Atividades compl. .. ${comp}
+
+▶ FREQUÊNCIA CARDÍACA
+  Conhece zonas FC? .. ${fcConh}
+  Dados de FC ........ ${fcDados}
+
+▶ SAÚDE E OBSERVAÇÕES
+  Restrições saúde ... ${saude}
+  Observações ........ ${obs}
+
+═══════════════════════════════════════════
+  Gerado via Formulário de Treino — ABV
+═══════════════════════════════════════════`;
+
+    document.getElementById('result-content').textContent = texto;
+    document.getElementById('result').style.display = 'block';
+    document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function copiarResumo() {
+    const txt = document.getElementById('result-content').textContent;
+    navigator.clipboard.writeText(txt).then(() => {
+      const btn = document.querySelector('.copy-btn');
+      btn.textContent = '✅ Copiado!';
+      setTimeout(() => btn.textContent = '📋 Copiar para enviar ao Bruno', 2000);
+    });
+  }
+</script>
+</body>
+</html>
