@@ -132,6 +132,7 @@ textarea{resize:vertical;min-height:72px}
   <label>SEU E-MAIL (cópia ao coach)</label>
   <input type="text" id="cfg-admin" placeholder="seu@email.com" value="brunofroca01@gmail.com">
   <button class="btn-config-save" onclick="saveConfig()">SALVAR E ATIVAR ✓</button>
+  <button onclick="clearConfig()" style="width:100%;margin-top:6px;padding:7px;background:transparent;border:1px solid #2a2a42;border-radius:8px;color:#5a5a78;font-size:11px;cursor:pointer;font-family:monospace;">🗑 Limpar configuração salva</button>
 </div>
 <div class="config-toggle" id="configToggle" onclick="toggleConfig()">⚙️</div>
 
@@ -361,7 +362,9 @@ textarea{resize:vertical;min-height:72px}
 </div>
 
 <script>
-// CONFIG
+// CONFIG — chave salva no localStorage do navegador, nunca no código
+const STORAGE_KEY = 'abv_coach_cfg';
+
 let CFG = {
   claudeKey:'',
   emailjsPub:'FObfx_qMHM1wQxZ1C',
@@ -370,26 +373,62 @@ let CFG = {
   adminEmail:'brunofroca01@gmail.com'
 };
 
+// Carrega configuração salva ao abrir a página
+function loadConfig(){
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if(saved){
+      const parsed = JSON.parse(saved);
+      CFG = {...CFG, ...parsed};
+      // Preenche os campos do painel
+      if(CFG.claudeKey) document.getElementById('cfg-claude').value = CFG.claudeKey;
+      document.getElementById('cfg-emailjs-pub').value = CFG.emailjsPub;
+      document.getElementById('cfg-service').value = CFG.serviceId;
+      document.getElementById('cfg-template').value = CFG.templateId;
+      document.getElementById('cfg-admin').value = CFG.adminEmail;
+    }
+    if(CFG.claudeKey){
+      emailjs.init(CFG.emailjsPub);
+      document.getElementById('statusDot').classList.add('ok');
+      document.getElementById('statusText').textContent = 'Configurado ✓ (salvo)';
+      document.getElementById('config-panel').style.display = 'none';
+      document.getElementById('configToggle').style.display = 'flex';
+    }
+  } catch(e){ console.warn('Erro ao carregar config:', e); }
+}
+
 function saveConfig(){
-  const k=document.getElementById('cfg-claude').value.trim();
-  if(!k){alert('Insira a API Key do Claude.');return;}
-  CFG.claudeKey=k;
-  CFG.emailjsPub=document.getElementById('cfg-emailjs-pub').value.trim()||CFG.emailjsPub;
-  CFG.serviceId=document.getElementById('cfg-service').value.trim()||CFG.serviceId;
-  CFG.templateId=document.getElementById('cfg-template').value.trim()||CFG.templateId;
-  CFG.adminEmail=document.getElementById('cfg-admin').value.trim()||CFG.adminEmail;
+  const k = document.getElementById('cfg-claude').value.trim();
+  if(!k){ alert('Insira a API Key do Claude.'); return; }
+  CFG.claudeKey = k;
+  CFG.emailjsPub = document.getElementById('cfg-emailjs-pub').value.trim() || CFG.emailjsPub;
+  CFG.serviceId  = document.getElementById('cfg-service').value.trim()     || CFG.serviceId;
+  CFG.templateId = document.getElementById('cfg-template').value.trim()    || CFG.templateId;
+  CFG.adminEmail = document.getElementById('cfg-admin').value.trim()       || CFG.adminEmail;
+  // Salva no localStorage
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(CFG));
   emailjs.init(CFG.emailjsPub);
   document.getElementById('statusDot').classList.add('ok');
-  document.getElementById('statusText').textContent='Configurado ✓';
-  document.getElementById('config-panel').style.display='none';
-  document.getElementById('configToggle').style.display='flex';
+  document.getElementById('statusText').textContent = 'Configurado ✓ (salvo)';
+  document.getElementById('config-panel').style.display = 'none';
+  document.getElementById('configToggle').style.display = 'flex';
+  alert('✅ Configuração salva! Não precisará inserir novamente neste navegador.');
+}
+
+function clearConfig(){
+  if(!confirm('Remover configuração salva?')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  CFG.claudeKey = '';
+  document.getElementById('cfg-claude').value = '';
+  document.getElementById('statusDot').classList.remove('ok');
+  document.getElementById('statusText').textContent = 'Insira suas chaves para ativar';
 }
 
 function toggleConfig(){
-  const p=document.getElementById('config-panel');
-  const showing=p.style.display!=='none'&&p.style.display!=='';
-  p.style.display=showing?'none':'block';
-  document.getElementById('configToggle').style.display=showing?'flex':'none';
+  const p = document.getElementById('config-panel');
+  const showing = p.style.display !== 'none' && p.style.display !== '';
+  p.style.display = showing ? 'none' : 'block';
+  document.getElementById('configToggle').style.display = showing ? 'flex' : 'none';
 }
 
 // ACCORDION
@@ -574,6 +613,9 @@ async function iniciarGeracao(){
 }
 
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
+// Carrega config salva ao iniciar
+window.addEventListener("DOMContentLoaded", loadConfig);
 </script>
 </body>
 </html>
