@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Coach de Corrida — Plano Personalizado</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -19,18 +18,6 @@ html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;line-height:1.6;min-height:100vh;overflow-x:hidden}
 body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(232,255,71,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(232,255,71,.025) 1px,transparent 1px);background-size:56px 56px;pointer-events:none;z-index:0}
 body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(232,255,71,.06),transparent);pointer-events:none;z-index:0}
-
-/* CONFIG PANEL */
-#config-panel{position:fixed;bottom:20px;right:20px;z-index:200;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);padding:16px 18px;width:320px;box-shadow:0 8px 40px rgba(0,0,0,.6);animation:slideUp .4s ease both}
-#config-panel h4{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--accent);margin-bottom:10px;letter-spacing:.05em}
-#config-panel label{font-size:11px;color:var(--muted2);display:block;margin-bottom:4px;font-family:'JetBrains Mono',monospace;letter-spacing:.05em}
-#config-panel input{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:11px;padding:8px 10px;outline:none;margin-bottom:10px}
-#config-panel input:focus{border-color:var(--accent)}
-#config-panel input::placeholder{color:var(--muted)}
-.btn-config-save{width:100%;padding:9px;background:var(--accent);color:#080810;border:none;border-radius:var(--radius-sm);font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:.06em;cursor:pointer;transition:opacity .2s}
-.btn-config-save:hover{opacity:.85}
-.config-toggle{position:fixed;bottom:20px;right:20px;z-index:199;background:var(--surface2);border:1px solid var(--border2);border-radius:50%;width:48px;height:48px;display:none;align-items:center;justify-content:center;cursor:pointer;font-size:20px;box-shadow:0 4px 20px rgba(0,0,0,.5);transition:border-color .2s}
-.config-toggle:hover{border-color:var(--accent)}
 
 /* HERO */
 .hero{position:relative;padding:70px 24px 50px;text-align:center;z-index:1}
@@ -83,29 +70,15 @@ textarea{resize:vertical;min-height:72px}
 .submit-wrap{max-width:700px;margin:0 auto;padding:0 20px 100px;position:relative;z-index:1}
 .btn-submit{width:100%;padding:18px;background:var(--accent);color:#080810;border:none;border-radius:var(--radius);font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:.08em;cursor:pointer;transition:transform .15s,box-shadow .15s;box-shadow:0 0 40px rgba(232,255,71,.2);display:flex;align-items:center;justify-content:center;gap:10px}
 .btn-submit:hover{transform:translateY(-2px);box-shadow:0 0 60px rgba(232,255,71,.35)}
-.btn-submit:disabled{opacity:.5;cursor:not-allowed;transform:none}
-
-/* PROCESSING */
-#processing-wrap{max-width:700px;margin:0 auto;padding:0 20px 80px;position:relative;z-index:1}
-.processing-card{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:56px 28px;text-align:center}
-.processing-emoji{font-size:54px;display:block;margin-bottom:18px;animation:run-bounce .9s ease-in-out infinite}
-.processing-card h3{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:.05em;margin-bottom:10px}
-.processing-card p{color:var(--muted2);font-size:13px;line-height:1.6}
-.proc-email{display:inline-block;margin:14px 0 6px;padding:7px 18px;background:rgba(232,255,71,.07);border:1px solid rgba(232,255,71,.2);border-radius:99px;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--accent)}
-.proc-note{font-size:11px!important;color:var(--muted)!important;margin-top:4px}
-.pulse-bar{width:220px;height:3px;background:var(--border2);border-radius:99px;margin:26px auto 0;overflow:hidden}
-.pulse-fill{height:100%;width:40%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:99px;animation:pulse-slide 1.4s ease-in-out infinite}
-@keyframes run-bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-@keyframes pulse-slide{0%{transform:translateX(-150%)}100%{transform:translateX(380%)}}
 
 /* RESULT */
 #result{display:none;max-width:700px;margin:0 auto;padding:0 20px 80px;position:relative;z-index:1}
 .result-card{background:var(--surface);border:1px solid rgba(71,255,138,.3);border-radius:var(--radius);padding:28px;animation:fadeUp .5s ease both}
 .result-card h3{font-family:'Bebas Neue',sans-serif;font-size:26px;color:#47ff8a;margin-bottom:6px}
 .result-card p{color:var(--muted2);font-size:13px;margin-bottom:16px}
-.email-sent{display:flex;align-items:center;gap:10px;padding:12px 16px;background:rgba(71,255,138,.06);border:1px solid rgba(71,255,138,.2);border-radius:var(--radius-sm);font-size:13px;color:#47ff8a;margin-bottom:10px}
-.plan-preview{margin-top:20px;background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:var(--radius-sm);padding:20px 22px;max-height:400px;overflow-y:auto}
-.plan-preview pre{font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);white-space:pre-wrap;word-wrap:break-word;line-height:1.75}
+.info-box{display:flex;align-items:flex-start;gap:10px;padding:14px 16px;background:rgba(71,200,255,.06);border:1px solid rgba(71,200,255,.2);border-radius:var(--radius-sm);font-size:13px;color:var(--accent2);margin-bottom:16px;line-height:1.6}
+.plan-preview{margin-top:4px;background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:var(--radius-sm);padding:20px 22px;max-height:420px;overflow-y:auto}
+.plan-preview pre{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text);white-space:pre-wrap;word-wrap:break-word;line-height:1.7}
 .result-actions{display:flex;gap:10px;margin-top:14px}
 .btn-download{flex:1;padding:13px;background:transparent;border:1px solid var(--accent);border-radius:var(--radius-sm);color:var(--accent);font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:.06em;cursor:pointer;transition:all .2s}
 .btn-download:hover{background:rgba(232,255,71,.08)}
@@ -115,34 +88,16 @@ textarea{resize:vertical;min-height:72px}
 
 @keyframes fadeDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-@keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
-@keyframes spin{to{transform:rotate(360deg)}}
 ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px}
 </style>
 </head>
 <body>
 
-<!-- CONFIG PANEL -->
-<div id="config-panel">
-  <h4>⚙ CONFIGURAÇÃO</h4>
-  <label>EMAILJS PUBLIC KEY</label>
-  <input type="text" id="cfg-emailjs-pub" placeholder="FObfx_..." value="FObfx_qMHM1wQxZ1C">
-  <label>EMAILJS SERVICE ID</label>
-  <input type="text" id="cfg-service" placeholder="service_..." value="service_wxistmu">
-  <label>EMAILJS TEMPLATE ID</label>
-  <input type="text" id="cfg-template" placeholder="template_..." value="template_cfilv9a">
-  <label>SEU E-MAIL (cópia ao coach)</label>
-  <input type="text" id="cfg-admin" placeholder="seu@email.com" value="brunofroca01@gmail.com">
-  <button class="btn-config-save" onclick="saveConfig()">SALVAR ✓</button>
-  <button onclick="clearConfig()" style="width:100%;margin-top:6px;padding:7px;background:transparent;border:1px solid #2a2a42;border-radius:8px;color:#5a5a78;font-size:11px;cursor:pointer;font-family:monospace;">🗑 Restaurar padrões</button>
-</div>
-<div class="config-toggle" id="configToggle" onclick="toggleConfig()">⚙️</div>
-
 <!-- HERO -->
 <div class="hero">
-  <div class="hero-tag">🏃 Coach de Corrida — ABV</div>
+  <div class="hero-tag">🏃 Plano de corrida</div>
   <h1>SEU PLANO<br><em>PERSONALIZADO</em></h1>
-  <p>Responda as perguntas abaixo. A IA vai gerar seu plano de treinos e enviar por e-mail automaticamente.</p>
+  <p>Preencha as informações abaixo. Ao final, seu perfil será exportado como arquivo de texto para geração do plano de treinos.</p>
   <div class="hero-line"></div>
 </div>
 
@@ -334,91 +289,18 @@ textarea{resize:vertical;min-height:72px}
 <!-- SUBMIT -->
 <div class="submit-wrap">
   <button class="btn-submit" id="btnSubmit" onclick="iniciarGeracao()">
-    <span>GERAR MEU PLANO DE TREINOS</span><span>→</span>
+    <span>GERAR ARQUIVO DE PERFIL</span><span>→</span>
   </button>
-</div>
-
-<!-- PROCESSING -->
-<div id="processing-wrap" style="display:none">
-  <div class="processing-card">
-    <span class="processing-emoji">🏃</span>
-    <h3>PLANO EM PRODUÇÃO!</h3>
-    <p>Seu plano personalizado está sendo gerado com IA.<br>Fique à vontade — você receberá tudo em:</p>
-    <div class="proc-email" id="processing-email"></div>
-    <p class="proc-note">Isso leva cerca de 30 segundos</p>
-    <div class="pulse-bar"><div class="pulse-fill"></div></div>
-  </div>
 </div>
 
 <!-- RESULT -->
 <div id="result">
   <div class="result-card">
-    <h3>✅ PLANO GERADO E ENVIADO!</h3>
-    <p>Seu plano personalizado foi enviado por e-mail. Verifique sua caixa de entrada.</p>
-    <div class="email-sent">📧 Enviado para: <strong id="email-user-addr"></strong></div>
-    <div class="email-sent">📋 Cópia enviada ao coach: <strong id="result-admin-email"></strong></div>
-    <div class="plan-preview"><pre id="plan-text"></pre></div>
-    <div class="result-actions">
-      <button class="btn-download" onclick="downloadPlano()">⬇ BAIXAR PLANO (.TXT)</button>
-      <button class="btn-novo" onclick="novoPlano()">🔄 NOVO PLANO</button>
-    </div>
+    <h3>✅ ARQUIVO GERADO!</h3>
   </div>
 </div>
 
 <script>
-// CONFIG — chave salva no localStorage do navegador, nunca no código
-const STORAGE_KEY = 'abv_coach_cfg';
-
-let CFG = {
-  emailjsPub:'FObfx_qMHM1wQxZ1C',
-  serviceId:'service_wxistmu',
-  templateId:'template_cfilv9a',
-  adminEmail:'brunofroca01@gmail.com'
-};
-
-// Carrega configuração salva ao abrir a página
-function loadConfig(){
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if(saved){
-      const parsed = JSON.parse(saved);
-      CFG = {...CFG, ...parsed};
-      document.getElementById('cfg-emailjs-pub').value = CFG.emailjsPub;
-      document.getElementById('cfg-service').value = CFG.serviceId;
-      document.getElementById('cfg-template').value = CFG.templateId;
-      document.getElementById('cfg-admin').value = CFG.adminEmail;
-    }
-    emailjs.init(CFG.emailjsPub);
-    document.getElementById('config-panel').style.display = 'none';
-    document.getElementById('configToggle').style.display = 'flex';
-  } catch(e){ console.warn('Erro ao carregar config:', e); }
-}
-
-function saveConfig(){
-  CFG.emailjsPub = document.getElementById('cfg-emailjs-pub').value.trim() || CFG.emailjsPub;
-  CFG.serviceId  = document.getElementById('cfg-service').value.trim()     || CFG.serviceId;
-  CFG.templateId = document.getElementById('cfg-template').value.trim()    || CFG.templateId;
-  CFG.adminEmail = document.getElementById('cfg-admin').value.trim()       || CFG.adminEmail;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(CFG));
-  emailjs.init(CFG.emailjsPub);
-  document.getElementById('config-panel').style.display = 'none';
-  alert('✅ Configuração salva!');
-}
-
-function clearConfig(){
-  if(!confirm('Restaurar configurações padrão?')) return;
-  localStorage.removeItem(STORAGE_KEY);
-  document.getElementById('cfg-emailjs-pub').value = 'FObfx_qMHM1wQxZ1C';
-  document.getElementById('cfg-service').value = 'service_wxistmu';
-  document.getElementById('cfg-template').value = 'template_cfilv9a';
-  document.getElementById('cfg-admin').value = 'brunofroca01@gmail.com';
-}
-
-function toggleConfig(){
-  const p = document.getElementById('config-panel');
-  p.style.display = p.style.display === 'block' ? 'none' : 'block';
-}
-
 // ACCORDION
 document.querySelectorAll('.section-header').forEach(h=>{
   h.addEventListener('click',()=>{h.closest('.section').classList.toggle('open');updateProgress();});
@@ -478,129 +360,101 @@ function validar(p){
   return null;
 }
 
-async function gerarComClaude(p){
+function gerarTexto(p){
   const fcInfo=p.fc_dados!=='Calcular pela idade'
-    ?'Zonas de FC fornecidas pelo atleta:\n'+p.fc_dados
-    :`FC Máx estimada: ${220-parseInt(p.idade)} bpm (fórmula 220 - idade)\nCalcular zonas: Z1 50-60%, Z2 60-70%, Z3 70-80%, Z4 80-90%, Z5 90-100%`;
+    ?p.fc_dados
+    :`FC Máx estimada: ${220-parseInt(p.idade)} bpm (fórmula 220 - idade)\nZonas: Z1 50-60% | Z2 60-70% | Z3 70-80% | Z4 80-90% | Z5 90-100%`;
 
-  const prompt=`Você é um coach de corrida de rua especializado. Crie um plano de treinos periodizado completo e personalizado com base no perfil abaixo.
+  return `PERFIL DO ATLETA — ABV Coach de Corrida
+Gerado em: ${new Date().toLocaleDateString('pt-BR')}
+${'='.repeat(52)}
 
-=== PERFIL ===
-Nome: ${p.nome} | Cidade: ${p.cidade} | Idade: ${p.idade} anos | Sexo: ${p.sexo}
-Peso: ${p.peso}kg | Altura: ${p.altura}cm | Relógio: ${p.relogio}
-Nível: ${p.nivel} | Volume atual: ${p.volume}
-Experiência em provas: ${p.prova} | Pace atual: ${p.pace_atual}
-Lesões: ${p.lesao} | Saúde: ${p.saude}
+DADOS PESSOAIS
+• Nome: ${p.nome}
+• E-mail: ${p.email}
+• Cidade: ${p.cidade}
+• Idade: ${p.idade} anos
+• Sexo: ${p.sexo}
+• Peso: ${p.peso}kg | Altura: ${p.altura}cm
+• Relógio: ${p.relogio}
 
-=== OBJETIVO ===
-Meta: ${p.objetivo} | Distância-alvo: ${p.distancia}
-Pace alvo: ${p.pace_alvo} | Prazo: ${p.prazo}
+NÍVEL E HISTÓRICO
+• Nível: ${p.nivel}
+• Volume atual: ${p.volume}
+• Experiência em provas: ${p.prova}
+• Pace atual: ${p.pace_atual}
+• Lesões: ${p.lesao}
 
-=== DISPONIBILIDADE ===
-${p.dias_num} de treino | Dias: ${p.dias} | Horário: ${p.horario} | Duração: ${p.tempo}
+OBJETIVO E META
+• Objetivo: ${p.objetivo}
+• Distância-alvo: ${p.distancia}
+• Pace alvo: ${p.pace_alvo}
+• Prazo / Prova: ${p.prazo}
 
-=== LOCAL ===
-${p.local} | Terreno: ${p.terreno} | Complementares: ${p.comp}
+DISPONIBILIDADE
+• Dias por semana: ${p.dias_num}
+• Dias preferidos: ${p.dias}
+• Horário: ${p.horario}
+• Duração por sessão: ${p.tempo}
 
-=== FREQUÊNCIA CARDÍACA ===
+LOCAL E CONDIÇÕES
+• Local de treino: ${p.local}
+• Descrição do percurso: ${p.terreno}
+• Atividades complementares: ${p.comp}
+
+FREQUÊNCIA CARDÍACA
+• Conhecimento: ${p.fc_conhece}
 ${fcInfo}
 
-=== OBSERVAÇÕES ===
-${p.obs}
+SAÚDE E OBSERVAÇÕES
+• Restrições: ${p.saude}
+• Observações: ${p.obs}
 
-=== INSTRUÇÕES ===
-Monte um plano periodizado com:
-• Fases claras: Base → Construção → Velocidade/Pico → Taper (se aplicável)
-• Duração total compatível com o prazo informado
-• ${p.dias_num} sessões/semana nos dias: ${p.dias}
-• Cada sessão com: título, tipo de treino, distância, pace alvo, zona de FC, estrutura (aquecimento → blocos → volta à calma)
-• Semanas de recuperação a cada 3–4 semanas (volume -25%)
-• Progressão gradual (regra dos 10%)
-• Considerar lesões e restrições de saúde
-
-Use emojis para facilitar a leitura. Seja específico com paces e distâncias. Formate com seções bem definidas.`;
-
-  const res=await fetch('/api/generate',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({prompt})
-  });
-  if(!res.ok){const e=await res.json();throw new Error(e.error||'Erro ao gerar plano');}
-  const data=await res.json();
-  return data.text;
+${'='.repeat(52)}`;
 }
 
-async function enviarEmail(para,nome,plano,isAdmin){
-  return emailjs.send(CFG.serviceId,CFG.templateId,{
-    to_email:para,
-    to_name:isAdmin?'Bruno (Coach)':nome,
-    from_name:'Coach de Corrida — ABV',
-    subject:isAdmin?`[Coach ABV] Novo plano — ${nome}`:`🏃 Seu plano personalizado — ${nome}`,
-    message:plano,
-    athlete_name:nome,
-  });
-}
+let perfilTexto='';
 
-let planGerado='';
-
-async function iniciarGeracao(){
+function iniciarGeracao(){
   const p=coletarPerfil();
   const erro=validar(p);
   if(erro){alert('⚠️ '+erro);return;}
 
-  document.getElementById('btnSubmit').disabled=true;
-  document.querySelector('.form-wrap').style.cssText='opacity:.4;pointer-events:none';
-  document.querySelector('.submit-wrap').style.display='none';
-  document.getElementById('processing-email').textContent=p.email;
-  document.getElementById('processing-wrap').style.display='block';
-  document.getElementById('processing-wrap').scrollIntoView({behavior:'smooth'});
+  perfilTexto=gerarTexto(p);
 
-  try{
-    const plano=await gerarComClaude(p);
-    planGerado=plano;
-    await enviarEmail(p.email,p.nome,plano,false);
-    await enviarEmail(CFG.adminEmail,p.nome,plano,true);
-
-    document.getElementById('processing-wrap').style.display='none';
-    document.getElementById('email-user-addr').textContent=p.email;
-    document.getElementById('result-admin-email').textContent=CFG.adminEmail;
-    document.getElementById('plan-text').textContent=plano;
-    document.getElementById('result').style.display='block';
-    document.getElementById('result').scrollIntoView({behavior:'smooth'});
-
-  }catch(err){
-    console.error(err);
-    document.getElementById('processing-wrap').style.display='none';
-    document.querySelector('.submit-wrap').style.display='block';
-    document.getElementById('btnSubmit').disabled=false;
-    document.querySelector('.form-wrap').style.cssText='';
-    alert('❌ Erro: '+(err.message||'Verifique as configurações e tente novamente.'));
-  }
-}
-
-function downloadPlano(){
-  if(!planGerado)return;
-  const nome=document.getElementById('nome').value.trim()||'atleta';
-  const blob=new Blob([planGerado],{type:'text/plain;charset=utf-8'});
+  const blob=new Blob([perfilTexto],{type:'text/plain;charset=utf-8'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
   a.href=url;
-  a.download='plano-corrida-'+nome.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,'-')+'.txt';
+  a.download='perfil-'+p.nome.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,'-')+'.txt';
+  a.click();
+  URL.revokeObjectURL(url);
+
+  document.getElementById('plan-text').textContent=perfilTexto;
+  document.querySelector('.form-wrap').style.display='none';
+  document.querySelector('.submit-wrap').style.display='none';
+  document.getElementById('result').style.display='block';
+  document.getElementById('result').scrollIntoView({behavior:'smooth'});
+}
+
+function downloadPerfil(){
+  if(!perfilTexto)return;
+  const blob=new Blob([perfilTexto],{type:'text/plain;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='perfil-atleta.txt';
   a.click();
   URL.revokeObjectURL(url);
 }
 
-function novoPlano(){
+function novoPerfil(){
   document.getElementById('result').style.display='none';
-  document.querySelector('.form-wrap').style.cssText='';
+  document.querySelector('.form-wrap').style.display='block';
   document.querySelector('.submit-wrap').style.display='block';
-  document.getElementById('btnSubmit').disabled=false;
-  planGerado='';
+  perfilTexto='';
   window.scrollTo({top:0,behavior:'smooth'});
 }
-
-// Carrega config salva ao iniciar
-window.addEventListener("DOMContentLoaded", loadConfig);
 </script>
 </body>
 </html>
