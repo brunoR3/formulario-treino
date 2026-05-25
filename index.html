@@ -86,6 +86,22 @@ textarea{resize:vertical;min-height:72px}
 .btn-novo:hover{border-color:var(--accent2);color:var(--text)}
 @media(max-width:480px){.result-actions{flex-direction:column}}
 
+/* PRÓXIMO */
+.btn-proximo{width:100%;padding:12px;background:transparent;border:1px solid rgba(232,255,71,.3);border-radius:var(--radius-sm);color:var(--accent);font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:.08em;cursor:pointer;transition:all .2s;margin-top:6px}
+.btn-proximo:hover{background:rgba(232,255,71,.07);border-color:var(--accent)}
+.section-num.done{color:#47ff8a;background:rgba(71,255,138,.1);border-color:rgba(71,255,138,.3)}
+
+/* COPY BOX */
+.copy-instruction{color:var(--muted2);font-size:13px;margin-bottom:12px;line-height:1.6}
+.copy-box{background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px 18px;max-height:280px;overflow-y:auto;margin-bottom:14px}
+.copy-box pre{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text);white-space:pre-wrap;word-wrap:break-word;line-height:1.7}
+.btn-copy{flex:1;padding:13px;background:transparent;border:1px solid var(--accent);border-radius:var(--radius-sm);color:var(--accent);font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:.06em;cursor:pointer;transition:all .2s}
+.btn-copy:hover{background:rgba(232,255,71,.08)}
+.btn-copy.copied{border-color:#47ff8a;color:#47ff8a}
+.btn-whatsapp{flex:1;padding:13px;background:#25D366;border:none;border-radius:var(--radius-sm);color:#fff;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:.06em;cursor:pointer;transition:opacity .2s}
+.btn-whatsapp:hover{opacity:.88}
+@media(max-width:480px){.share-actions{flex-direction:column}}
+
 @keyframes fadeDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px}
@@ -130,6 +146,7 @@ textarea{resize:vertical;min-height:72px}
           <div class="choice-item"><input type="radio" name="relogio" id="r6" value="Não tenho"><label for="r6">Não tenho</label></div>
         </div>
       </div>
+      <button class="btn-proximo" onclick="proximaSecao(1)">PRÓXIMO →</button>
     </div>
   </div>
 
@@ -159,6 +176,7 @@ textarea{resize:vertical;min-height:72px}
       </div>
       <div class="field"><label>Pace atual</label><input type="text" id="pace_atual" placeholder="Ex: 6:30 min/km  ou  'não sei ainda'"></div>
       <div class="field"><label>Lesões atuais ou recentes</label><textarea id="lesao" placeholder="Ex: Tendinite no joelho há 2 meses. Ou: Nenhuma."></textarea></div>
+      <button class="btn-proximo" onclick="proximaSecao(2)">PRÓXIMO →</button>
     </div>
   </div>
 
@@ -186,6 +204,7 @@ textarea{resize:vertical;min-height:72px}
       </div>
       <div class="field"><label>Pace alvo</label><input type="text" id="pace_alvo" placeholder="Ex: 5:45 min/km  ou  'só quero terminar'"></div>
       <div class="field"><label>Prazo / data da prova <span class="req">*</span></label><input type="text" id="prazo" placeholder="Ex: Dezembro/2025  ou  'sem prova marcada'"><span class="hint">Se tiver prova específica, informe nome e cidade.</span></div>
+      <button class="btn-proximo" onclick="proximaSecao(3)">PRÓXIMO →</button>
     </div>
   </div>
 
@@ -230,6 +249,7 @@ textarea{resize:vertical;min-height:72px}
           <div class="choice-item"><input type="radio" name="tempo" id="t5" value="+90 min"><label for="t5">>90min</label></div>
         </div>
       </div>
+      <button class="btn-proximo" onclick="proximaSecao(4)">PRÓXIMO →</button>
     </div>
   </div>
 
@@ -256,6 +276,7 @@ textarea{resize:vertical;min-height:72px}
           <div class="choice-item"><input type="checkbox" name="comp" id="c6" value="Nenhuma"><label for="c6">Nenhuma</label></div>
         </div>
       </div>
+      <button class="btn-proximo" onclick="proximaSecao(5)">PRÓXIMO →</button>
     </div>
   </div>
 
@@ -290,7 +311,16 @@ textarea{resize:vertical;min-height:72px}
 <!-- RESULT -->
 <div id="result">
   <div class="result-card">
-    <h3>✅ ARQUIVO GERADO!</h3>
+    <h3>✅ PERFIL PRONTO!</h3>
+    <p class="copy-instruction">Copie o texto abaixo e cole em uma conversa no Claude AI para gerar seu plano de treinos personalizado.</p>
+    <div class="copy-box"><pre id="copy-box"></pre></div>
+    <div class="share-actions result-actions">
+      <button class="btn-copy" id="btnCopy" onclick="copiarTexto()">📋 COPIAR TEXTO</button>
+      <button class="btn-whatsapp" onclick="compartilharWhatsApp()">📱 ENVIAR NO WHATSAPP</button>
+    </div>
+    <div class="result-actions" style="margin-top:8px">
+      <button class="btn-novo" style="flex:1" onclick="novoPerfil()">↩ NOVO PERFIL</button>
+    </div>
   </div>
 </div>
 
@@ -405,43 +435,53 @@ ${'='.repeat(52)}`;
 
 let perfilTexto='';
 
+function proximaSecao(n){
+  const sections=document.querySelectorAll('.section');
+  sections[n-1].querySelector('.section-num').classList.add('done');
+  sections[n-1].classList.remove('open');
+  if(sections[n]){
+    sections[n].classList.add('open');
+    sections[n].scrollIntoView({behavior:'smooth',block:'start'});
+  }
+  updateProgress();
+}
+
 function iniciarGeracao(){
   const p=coletarPerfil();
   const erro=validar(p);
   if(erro){alert('⚠️ '+erro);return;}
-
   perfilTexto=gerarTexto(p);
-
-  const blob=new Blob([perfilTexto],{type:'text/plain;charset=utf-8'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;
-  a.download='perfil-'+p.nome.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,'-')+'.txt';
-  a.click();
-  URL.revokeObjectURL(url);
-
-  document.getElementById('plan-text').textContent=perfilTexto;
+  document.getElementById('copy-box').textContent=perfilTexto;
+  const btnCopy=document.getElementById('btnCopy');
+  btnCopy.classList.remove('copied');
+  btnCopy.textContent='📋 COPIAR TEXTO';
   document.querySelector('.form-wrap').style.display='none';
   document.querySelector('.submit-wrap').style.display='none';
   document.getElementById('result').style.display='block';
   document.getElementById('result').scrollIntoView({behavior:'smooth'});
 }
 
-function downloadPerfil(){
+function copiarTexto(){
   if(!perfilTexto)return;
-  const blob=new Blob([perfilTexto],{type:'text/plain;charset=utf-8'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;
-  a.download='perfil-atleta.txt';
-  a.click();
-  URL.revokeObjectURL(url);
+  navigator.clipboard.writeText(perfilTexto).then(()=>{
+    const btn=document.getElementById('btnCopy');
+    btn.classList.add('copied');
+    btn.textContent='✅ COPIADO!';
+    setTimeout(()=>{btn.classList.remove('copied');btn.textContent='📋 COPIAR TEXTO';},2500);
+  });
+}
+
+function compartilharWhatsApp(){
+  if(!perfilTexto)return;
+  window.open('https://wa.me/?text='+encodeURIComponent(perfilTexto),'_blank');
 }
 
 function novoPerfil(){
   document.getElementById('result').style.display='none';
   document.querySelector('.form-wrap').style.display='block';
   document.querySelector('.submit-wrap').style.display='block';
+  document.querySelectorAll('.section-num').forEach(n=>n.classList.remove('done'));
+  document.querySelectorAll('.section').forEach((s,i)=>{if(i===0)s.classList.add('open');else s.classList.remove('open');});
   perfilTexto='';
   window.scrollTo({top:0,behavior:'smooth'});
 }
